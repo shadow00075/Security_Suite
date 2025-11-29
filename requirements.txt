@@ -1,0 +1,157 @@
+# Capstone Security Suite Requirements
+
+# Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Security and Cryptography
+bcrypt==4.0.1
+cryptography==41.0.7
+hashlib2==2.3.1
+
+# Network and System Analysis
+psutil==5.9.6
+netifaces==0.11.0
+python-nmap==0.7.1
+scapy==2.5.0
+requests==2.31.0
+
+# DNS Resolution (optional but recommended)
+dnspython==2.4.2
+
+# Data Analysis and Machine Learning
+numpy==1.24.4
+pandas==2.0.3
+scikit-learn==1.3.2
+
+# HTTP Client
+urllib3==2.0.7
+
+# Development and Testing (optional)
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.9.1
+flake8==6.1.0
+
+# Logging
+colorlog==6.7.0
+
+# Configuration
+python-dotenv==1.0.0
+
+# Rate Limiting
+Flask-Limiter==3.5.0
+redis==5.0.1
+
+# Input Validation
+WTForms==3.1.0
+Flask-WTF==1.2.1
+
+# CORS (if needed for API)
+Flask-CORS==4.0.0
+
+# JSON Web Tokens (if needed for authentication)
+PyJWT==2.8.0
+
+# Email (if needed for alerts)
+Flask-Mail==0.9.1
+
+# Background Tasks (optional)
+celery==5.3.4
+
+# Database (if needed in future)
+SQLAlchemy==2.0.23
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+
+# Monitoring and Metrics (optional)
+prometheus-client==0.19.0
+
+# Additional Security Tools
+yara-python==4.3.1
+virustotal-api==1.1.11
+
+# Network Security
+python-whois==0.8.0
+geoip2==4.7.0
+
+# Report Generation
+jinja2==3.1.2
+matplotlib==3.7.4
+seaborn==0.12.2
+
+# Configuration Management
+configparser==6.0.0
+
+# Async Support (if needed)
+aiohttp==3.9.1
+asyncio==3.4.3
+
+# XML/HTML Parsing
+lxml==4.9.3
+beautifulsoup4==4.12.2
+
+# Progress Bars
+tqdm==4.66.1
+
+# System Information
+py-cpuinfo==9.0.0
+GPUtil==1.4.0
+
+# Network Protocols
+paramiko==3.3.1  # SSH client
+impacket==0.11.0  # Network protocols
+
+# Certificate Analysis
+pyOpenSSL==23.3.0
+
+# Web Scraping (for vulnerability checks)
+selenium==4.15.2
+
+# Image Processing (for captcha/analysis)
+Pillow==10.1.0
+
+# Regular Expressions (enhanced)
+regex==2023.10.3
+
+# File Type Detection
+python-magic==0.4.27
+
+# Password Strength Checking
+zxcvbn==4.4.28
+
+# Network Traffic Analysis
+dpkt==1.9.8
+
+# Protocol Buffers (if needed)
+protobuf==4.25.1
+
+# Message Queues (if needed)
+pika==1.3.2
+
+# Caching
+Flask-Caching==2.1.0
+
+# API Documentation (if building APIs)
+flasgger==0.9.7.1
+
+# Environment Detection
+distro==1.8.0
+
+# Timezone Handling
+pytz==2023.3.post1
+
+# UUID Generation
+uuid==1.30
+
+# Base64 Encoding/Decoding
+base64io==1.0.3
+
+# Compression
+gzip==1.0
+
+# Archive Handling
+zipfile36==0.1.3
+
+# Backup and Archiving
+tarfile==0.1.0

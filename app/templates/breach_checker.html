@@ -1,0 +1,745 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="breach-checker-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-shield-halved"></i> Password Breach Checker
+            </h1>
+            <p class="lead text-muted">Check if your passwords have been compromised in data breaches</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Single Password Check -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-search"></i> Check Password Security
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="password-input" class="form-label">Enter Password to Check</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password-input" 
+                               placeholder="Enter password to check for breaches">
+                        <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-lock text-success"></i> 
+                        Your password is never sent in plain text. We use secure hashing.
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-primary" id="check-password-btn">
+                    <i class="fas fa-shield-alt"></i> Check for Breaches
+                </button>
+                
+                <button type="button" class="btn btn-secondary ms-2" id="clear-results-btn">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Batch Password Check -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list"></i> Bulk Password Check
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="password-list" class="form-label">Multiple Passwords (one per line)</label>
+                    <textarea class="form-control" id="password-list" rows="5" 
+                              placeholder="Enter multiple passwords, one per line"></textarea>
+                    <div class="form-text">
+                        Check multiple passwords at once. Each password should be on a separate line.
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-warning" id="check-multiple-btn">
+                    <i class="fas fa-tasks"></i> Check All Passwords
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="card d-none" id="results-section">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line"></i> Breach Check Results
+                </h5>
+            </div>
+            <div class="card-body" id="results-content">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Security Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> How It Works
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="how-it-works">
+                    <div class="step mb-3">
+                        <div class="step-icon">
+                            <i class="fas fa-hash text-primary"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>1. Secure Hashing</h6>
+                            <p class="small mb-0">Your password is converted to a secure SHA-1 hash locally.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step mb-3">
+                        <div class="step-icon">
+                            <i class="fas fa-user-secret text-info"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>2. Privacy Protection</h6>
+                            <p class="small mb-0">Only the first 5 characters of the hash are sent to the API.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step mb-3">
+                        <div class="step-icon">
+                            <i class="fas fa-database text-warning"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>3. Breach Database</h6>
+                            <p class="small mb-0">Checked against Have I Been Pwned's database of breached passwords.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-chart-bar text-success"></i>
+                        </div>
+                        <div class="step-content">
+                            <h6>4. Risk Assessment</h6>
+                            <p class="small mb-0">Results include breach count and security recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Security Tips -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb"></i> Security Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled security-tips">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Use unique passwords for each account
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Use a password manager
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Enable two-factor authentication
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Use at least 12 characters
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Mix letters, numbers, and symbols
+                    </li>
+                    <li>
+                        <i class="fas fa-times text-danger"></i> 
+                        Never reuse important passwords
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.breach-checker-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.how-it-works .step {
+    display: flex;
+    align-items: flex-start;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 123, 255, 0.1);
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.step-content h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.security-tips li {
+    display: flex;
+    align-items: center;
+}
+
+.security-tips i {
+    margin-right: 10px;
+    width: 16px;
+}
+
+.result-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.result-safe {
+    border-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.result-breached {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.result-warning {
+    border-color: #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.result-error {
+    border-color: #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+.risk-badge {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+
+.risk-safe {
+    background-color: #28a745;
+    color: white;
+}
+
+.risk-low {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.risk-medium {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.risk-high {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.risk-critical {
+    background-color: #dc3545;
+    color: white;
+}
+
+.breach-count {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.recommendations {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.recommendations ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.batch-summary {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border: 1px solid #2196f3;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-stat {
+    text-align: center;
+}
+
+.summary-stat .stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.summary-stat .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.progress {
+    height: 6px;
+    margin: 1rem 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.result-item {
+    animation: fadeIn 0.3s ease-out;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize event handlers
+    $('#toggle-password').on('click', togglePasswordVisibility);
+    $('#check-password-btn').on('click', checkSinglePassword);
+    $('#check-multiple-btn').on('click', checkMultiplePasswords);
+    $('#clear-results-btn').on('click', clearResults);
+    
+    // Enter key support
+    $('#password-input').on('keypress', function(e) {
+        if (e.which === 13) {
+            checkSinglePassword();
+        }
+    });
+});
+
+function togglePasswordVisibility() {
+    const passwordInput = $('#password-input');
+    const toggleBtn = $('#toggle-password i');
+    
+    if (passwordInput.attr('type') === 'password') {
+        passwordInput.attr('type', 'text');
+        toggleBtn.removeClass('fa-eye').addClass('fa-eye-slash');
+    } else {
+        passwordInput.attr('type', 'password');
+        toggleBtn.removeClass('fa-eye-slash').addClass('fa-eye');
+    }
+}
+
+function checkSinglePassword() {
+    const password = $('#password-input').val().trim();
+    
+    if (!password) {
+        showNotification('Please enter a password to check', 'warning');
+        return;
+    }
+    
+    // Show loading
+    const btn = $('#check-password-btn');
+    const originalText = btn.html();
+    btn.html('<i class="fas fa-spinner fa-spin"></i> Checking...').prop('disabled', true);
+    
+    // Make API request
+    $.ajax({
+        url: '/tools/check-breach',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ password: password }),
+        success: function(response) {
+            if (response.success) {
+                displaySingleResult(response.result);
+            } else {
+                showNotification('Error checking password: ' + response.error, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            showNotification('Failed to check password. Please try again.', 'error');
+        },
+        complete: function() {
+            btn.html(originalText).prop('disabled', false);
+        }
+    });
+}
+
+function checkMultiplePasswords() {
+    const passwordList = $('#password-list').val().trim();
+    
+    if (!passwordList) {
+        showNotification('Please enter passwords to check (one per line)', 'warning');
+        return;
+    }
+    
+    const passwords = passwordList.split('\n').filter(p => p.trim().length > 0);
+    
+    if (passwords.length === 0) {
+        showNotification('No valid passwords found', 'warning');
+        return;
+    }
+    
+    if (passwords.length > 20) {
+        showNotification('Maximum 20 passwords allowed at once', 'warning');
+        return;
+    }
+    
+    // Show loading
+    const btn = $('#check-multiple-btn');
+    const originalText = btn.html();
+    btn.html('<i class="fas fa-spinner fa-spin"></i> Checking...').prop('disabled', true);
+    
+    // Check passwords sequentially to avoid rate limiting
+    checkPasswordsBatch(passwords, 0, []);
+}
+
+function checkPasswordsBatch(passwords, index, results) {
+    if (index >= passwords.length) {
+        // All passwords checked
+        displayBatchResults({
+            results: results,
+            summary: calculateBatchSummary(results)
+        });
+        $('#check-multiple-btn').html('<i class="fas fa-tasks"></i> Check All Passwords').prop('disabled', false);
+        return;
+    }
+    
+    // Update progress
+    const progress = ((index / passwords.length) * 100);
+    updateBatchProgress(progress, `Checking password ${index + 1} of ${passwords.length}`);
+    
+    // Check current password
+    $.ajax({
+        url: '/tools/check-breach',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ password: passwords[index] }),
+        success: function(response) {
+            if (response.success) {
+                results.push({
+                    password_index: index + 1,
+                    ...response.result
+                });
+            } else {
+                results.push({
+                    password_index: index + 1,
+                    breached: null,
+                    risk_level: 'Error',
+                    error: response.error
+                });
+            }
+            
+            // Check next password after short delay
+            setTimeout(() => {
+                checkPasswordsBatch(passwords, index + 1, results);
+            }, 500);
+        },
+        error: function() {
+            results.push({
+                password_index: index + 1,
+                breached: null,
+                risk_level: 'Error',
+                error: 'Network error'
+            });
+            
+            // Check next password after short delay
+            setTimeout(() => {
+                checkPasswordsBatch(passwords, index + 1, results);
+            }, 500);
+        }
+    });
+}
+
+function displaySingleResult(result) {
+    const resultsSection = $('#results-section');
+    const resultsContent = $('#results-content');
+    
+    let resultClass = 'result-safe';
+    let statusIcon = 'fas fa-shield-alt text-success';
+    let statusText = 'Safe';
+    
+    if (result.breached === true) {
+        resultClass = result.risk_level === 'Critical' ? 'result-breached' : 'result-warning';
+        statusIcon = 'fas fa-exclamation-triangle text-danger';
+        statusText = 'Compromised';
+    } else if (result.breached === null) {
+        resultClass = 'result-error';
+        statusIcon = 'fas fa-question-circle text-muted';
+        statusText = 'Unknown';
+    }
+    
+    const html = `
+        <div class="result-item ${resultClass}">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h6 class="mb-2">
+                        <i class="${statusIcon}"></i>
+                        Password Status: ${statusText}
+                    </h6>
+                    
+                    ${result.breached === true ? `
+                        <p class="mb-2">
+                            <strong>Breach Count:</strong> 
+                            <span class="breach-count">${result.breach_count}</span>
+                        </p>
+                    ` : ''}
+                    
+                    <p class="mb-2">
+                        <strong>Risk Level:</strong>
+                        <span class="risk-badge risk-${result.risk_level?.toLowerCase() || 'unknown'}">${result.risk_level}</span>
+                    </p>
+                    
+                    <p class="mb-0">
+                        <strong>Source:</strong> ${result.source}
+                    </p>
+                </div>
+                
+                <div class="col-md-4 text-md-end">
+                    <div class="safe-indicator">
+                        ${result.safe_to_use === true ? 
+                            '<i class="fas fa-check-circle fa-3x text-success"></i>' : 
+                            result.safe_to_use === false ?
+                            '<i class="fas fa-times-circle fa-3x text-danger"></i>' :
+                            '<i class="fas fa-question-circle fa-3x text-muted"></i>'
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            ${result.recommendations ? `
+                <div class="recommendations">
+                    <h6><i class="fas fa-lightbulb"></i> Recommendations:</h6>
+                    <ul class="mb-0">
+                        ${result.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${result.error ? `
+                <div class="alert alert-warning mt-2 mb-0">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Note:</strong> ${result.error}
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    resultsContent.html(html);
+    resultsSection.removeClass('d-none');
+    
+    // Scroll to results
+    resultsSection[0].scrollIntoView({ behavior: 'smooth' });
+}
+
+function displayBatchResults(data) {
+    const resultsSection = $('#results-section');
+    const resultsContent = $('#results-content');
+    
+    const summary = data.summary;
+    
+    let html = `
+        <div class="batch-summary">
+            <h6 class="mb-3"><i class="fas fa-chart-pie"></i> Batch Check Summary</h6>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="summary-stat">
+                        <div class="stat-number text-primary">${summary.total_checked}</div>
+                        <div class="stat-label">Total Checked</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-stat">
+                        <div class="stat-number text-danger">${summary.breached_count}</div>
+                        <div class="stat-label">Breached</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-stat">
+                        <div class="stat-number text-success">${summary.safe_count}</div>
+                        <div class="stat-label">Safe</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-stat">
+                        <div class="stat-number text-muted">${summary.error_count}</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Individual results
+    data.results.forEach((result, index) => {
+        let resultClass = 'result-safe';
+        let statusIcon = 'fas fa-shield-alt text-success';
+        let statusText = 'Safe';
+        
+        if (result.breached === true) {
+            resultClass = result.risk_level === 'Critical' ? 'result-breached' : 'result-warning';
+            statusIcon = 'fas fa-exclamation-triangle text-danger';
+            statusText = 'Compromised';
+        } else if (result.breached === null) {
+            resultClass = 'result-error';
+            statusIcon = 'fas fa-question-circle text-muted';
+            statusText = 'Unknown';
+        }
+        
+        html += `
+            <div class="result-item ${resultClass}">
+                <h6 class="mb-2">
+                    <i class="${statusIcon}"></i>
+                    Password #${result.password_index}: ${statusText}
+                </h6>
+                
+                ${result.breached === true ? `
+                    <p class="mb-2">
+                        <strong>Breach Count:</strong> 
+                        <span class="breach-count">${result.breach_count}</span>
+                    </p>
+                ` : ''}
+                
+                <p class="mb-0">
+                    <strong>Risk Level:</strong>
+                    <span class="risk-badge risk-${result.risk_level?.toLowerCase() || 'unknown'}">${result.risk_level}</span>
+                </p>
+                
+                ${result.error ? `
+                    <div class="alert alert-warning mt-2 mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        ${result.error}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    resultsContent.html(html);
+    resultsSection.removeClass('d-none');
+    
+    // Hide progress
+    $('.batch-progress').remove();
+    
+    // Scroll to results
+    resultsSection[0].scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateBatchProgress(progress, message) {
+    let progressDiv = $('.batch-progress');
+    
+    if (progressDiv.length === 0) {
+        progressDiv = $(`
+            <div class="batch-progress mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="progress-message">Preparing...</span>
+                    <span class="progress-percentage">0%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+        `);
+        $('#results-section .card-body').prepend(progressDiv);
+        $('#results-section').removeClass('d-none');
+    }
+    
+    progressDiv.find('.progress-message').text(message);
+    progressDiv.find('.progress-percentage').text(Math.round(progress) + '%');
+    progressDiv.find('.progress-bar').css('width', progress + '%');
+}
+
+function calculateBatchSummary(results) {
+    const summary = {
+        total_checked: results.length,
+        breached_count: 0,
+        safe_count: 0,
+        error_count: 0
+    };
+    
+    results.forEach(result => {
+        if (result.breached === true) {
+            summary.breached_count++;
+        } else if (result.breached === false) {
+            summary.safe_count++;
+        } else {
+            summary.error_count++;
+        }
+    });
+    
+    return summary;
+}
+
+function clearResults() {
+    $('#results-section').addClass('d-none');
+    $('#password-input').val('');
+    $('#password-list').val('');
+    $('.batch-progress').remove();
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification
+    const alertClass = {
+        'success': 'alert-success',
+        'error': 'alert-danger',
+        'warning': 'alert-warning',
+        'info': 'alert-info'
+    }[type] || 'alert-info';
+    
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 80px; right: 20px; z-index: 1050; min-width: 300px;">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+{% endblock %}

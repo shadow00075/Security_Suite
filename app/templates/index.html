@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold text-primary mb-4">
+                    <i class="fas fa-shield-alt"></i> 
+                    Capstone Security Suite
+                </h1>
+                <p class="lead mb-4">
+                    A comprehensive cybersecurity toolkit featuring intelligent password generation, 
+                    network analysis, QR code security scanning, and anomaly-based intrusion detection.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg me-md-2">
+                        <i class="fas fa-tachometer-alt"></i> Open Dashboard
+                    </a>
+                    <a href="{{ url_for('main.about') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col">
+                <h2 class="display-6 fw-bold">Security Tools & Features</h2>
+                <p class="lead text-muted">Professional-grade security tools for comprehensive protection</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-key fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Password Strength Checker</h5>
+                        <p class="card-text">
+                            Advanced password security analysis with comprehensive strength assessment.
+                            Get detailed feedback and personalized improvement recommendations.
+                        </p>
+                        <a href="{{ url_for('password.password_generator') }}" class="btn btn-outline-primary">
+                            Try Now <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-desktop fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">System Information Analyzer</h5>
+                        <p class="card-text">
+                            Comprehensive system security analysis including hardware, software, 
+                            network configuration, and security software status assessment.
+                        </p>
+                        <a href="{{ url_for('security.system_info') }}" class="btn btn-outline-success">
+                            Analyze System <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-network-wired fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Network Analyzer</h5>
+                        <p class="card-text">
+                            Comprehensive network analysis including interface monitoring, 
+                            connection tracking, and network discovery tools.
+                        </p>
+                        <a href="{{ url_for('security.network_analyzer') }}" class="btn btn-outline-info">
+                            Analyze Network <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-shield-halved fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title">Password Breach Checker</h5>
+                        <p class="card-text">
+                            Check if your passwords have been compromised in known data breaches. 
+                            Uses secure k-anonymity to protect your privacy while checking safety.
+                        </p>
+                        <a href="{{ url_for('security.breach_checker') }}" class="btn btn-outline-warning">
+                            Check Password <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-qrcode fa-3x text-danger"></i>
+                        </div>
+                        <h5 class="card-title">QR Code Security Scanner</h5>
+                        <p class="card-text">
+                            Analyze QR codes for security threats including malicious URLs, phishing attempts,
+                            and suspicious content. Get detailed risk assessments and safety recommendations.
+                        </p>
+                        <a href="{{ url_for('security.qr_security') }}" class="btn btn-outline-danger">
+                            Scan QR Code <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 feature-card">
+                    <div class="card-body text-center">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-shield-check fa-3x text-dark"></i>
+                        </div>
+                        <h5 class="card-title">Security Headers Checker</h5>
+                        <p class="card-text">
+                            Analyze HTTP security headers and web application security posture. 
+                            Get detailed recommendations for improving security configuration.
+                        </p>
+                        <a href="{{ url_for('security.security_headers') }}" class="btn btn-outline-dark">
+                            Check Headers <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-primary">6</h3>
+                    <p class="lead">Security Tools</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-success">10+</h3>
+                    <p class="lead">Hash Algorithms</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-info">Real-time</h3>
+                    <p class="lead">Monitoring</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold text-warning">AI-Powered</h3>
+                    <p class="lead">Detection</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0;
+    margin-top: 56px;
+}
+
+.features-section {
+    background: white;
+}
+
+.feature-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.stat-item h3 {
+    margin-bottom: 0;
+}
+
+.stats-section {
+    border-top: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,555 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-tachometer-alt text-primary"></i> 
+                Security Dashboard
+            </h1>
+            <p class="lead text-muted">Central command center for all security tools and monitoring</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Active Scans</h6>
+                        <h3 class="mb-0" id="active-scans">0</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-search fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Recent Scans</h6>
+                        <h3 class="mb-0" id="recent-scans">3</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-history fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Tools Available</h6>
+                        <h3 class="mb-0">6</h3>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tools fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Help Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>Quick Start Guide
+                    <button class="btn btn-sm btn-outline-light float-end" type="button" data-bs-toggle="collapse" data-bs-target="#helpCollapse">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="collapse show" id="helpCollapse">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-rocket text-primary me-2"></i>Getting Started</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success me-1"></i> Start with Password Strength Checker</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Analyze your website with SSL Analyzer</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Check security headers for web protection</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-shield-alt text-success me-2"></i>Security Best Practices</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-check text-success me-1"></i> Use strong, unique passwords</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Enable HTTPS on all websites</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Regular security assessments</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-lightbulb text-warning me-2"></i>Pro Tips</h6>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-star text-warning me-1"></i> Combine multiple tools for better insights</li>
+                                <li><i class="fas fa-star text-warning me-1"></i> Save and compare scan results</li>
+                                <li><i class="fas fa-star text-warning me-1"></i> Set up regular security monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Tools Grid -->
+<div class="row">
+    <div class="col-12">
+        <h3 class="mb-4">
+            <i class="fas fa-tools"></i> Available Security Tools
+        </h3>
+    </div>
+    
+    {% for tool in tools %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 tool-card">
+            <div class="card-body d-flex flex-column">
+                <div class="tool-header text-center mb-3">
+                    <div class="tool-icon mb-2">
+                        {{ tool.icon }}
+                    </div>
+                    <h5 class="card-title">{{ tool.name }}</h5>
+                </div>
+                
+                <p class="card-text flex-grow-1">{{ tool.description }}</p>
+                
+                <div class="mt-auto">
+                    <a href="{{ tool.url }}" class="btn btn-primary btn-block w-100">
+                        <i class="fas fa-arrow-right"></i> Launch Tool
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Recent Activity & Security Tips -->
+<div class="row mt-5">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Recent Activity
+                </h5>
+                <button class="btn btn-sm btn-outline-secondary" onclick="loadRecentActivity()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="recent-activity">
+                    <div class="activity-item">
+                        <div class="d-flex align-items-center">
+                            <div class="activity-icon bg-success text-white me-3">
+                                <i class="fas fa-shield-check"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>Security Suite Initialized</strong>
+                                <br><small class="text-muted">All security tools are ready for use</small>
+                            </div>
+                            <small class="text-muted">Now</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="d-flex align-items-center">
+                            <div class="activity-icon bg-info text-white me-3">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <strong>6 Security Tools Available</strong>
+                                <br><small class="text-muted">Password checker, network analyzer, QR security scanner and more</small>
+                            </div>
+                            <small class="text-muted">Ready</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb"></i> Security Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="security-tips">
+                    <div class="tip-item mb-3">
+                        <div class="d-flex">
+                            <div class="tip-icon me-2">
+                                <i class="fas fa-key text-primary"></i>
+                            </div>
+                            <div>
+                                <strong>Use Strong Passwords</strong>
+                                <br><small class="text-muted">Create unique passwords for each account using our Password Generator</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tip-item mb-3">
+                        <div class="d-flex">
+                            <div class="tip-icon me-2">
+                                <i class="fas fa-certificate text-success"></i>
+                            </div>
+                            <div>
+                                <strong>Check SSL Certificates</strong>
+                                <br><small class="text-muted">Ensure your websites use valid SSL certificates</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="d-flex">
+                            <div class="tip-icon me-2">
+                                <i class="fas fa-shield-alt text-warning"></i>
+                            </div>
+                            <div>
+                                <strong>Regular Security Monitoring</strong>
+                                <br><small class="text-muted">Perform regular security assessments and monitoring</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dashboard Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="dashboard-settings-form">
+                    <div class="mb-3">
+                        <label for="refresh-interval" class="form-label">Auto Refresh Interval (seconds)</label>
+                        <select class="form-select" id="refresh-interval">
+                            <option value="0">Disabled</option>
+                            <option value="30">30 seconds</option>
+                            <option value="60" selected>1 minute</option>
+                            <option value="300">5 minutes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Dashboard Notifications</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="alerts-notifications" checked>
+                            <label class="form-check-label" for="alerts-notifications">
+                                Security Alerts
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="scan-notifications" checked>
+                            <label class="form-check-label" for="scan-notifications">
+                                Scan Completion
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="theme-select" class="form-label">Dashboard Theme</label>
+                        <select class="form-select" id="theme-select">
+                            <option value="light" selected>Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto">Auto (System)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveDashboardSettings()">
+                    Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.tool-card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tool-icon {
+    font-size: 2.5rem;
+    background: rgba(0,123,255,0.1);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.card.bg-primary .opacity-75 { opacity: 0.75 !important; }
+.card.bg-success .opacity-75 { opacity: 0.75 !important; }
+.card.bg-warning .opacity-75 { opacity: 0.75 !important; }
+.card.bg-info .opacity-75 { opacity: 0.75 !important; }
+
+.activity-item {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.tip-item {
+    padding: 0.75rem;
+    background: rgba(0, 123, 255, 0.05);
+    border-radius: 0.375rem;
+    border-left: 3px solid #007bff;
+}
+
+.tip-icon {
+    width: 30px;
+    text-align: center;
+}
+
+.alert-item {
+    background: rgba(255, 193, 7, 0.1);
+    border-left: 4px solid #ffc107;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.alert-item.high {
+    background: rgba(220, 53, 69, 0.1);
+    border-left-color: #dc3545;
+}
+
+.alert-item.medium {
+    background: rgba(255, 193, 7, 0.1);
+    border-left-color: #ffc107;
+}
+
+.alert-item.low {
+    background: rgba(0, 123, 255, 0.1);
+    border-left-color: #007bff;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let refreshInterval = null;
+
+$(document).ready(function() {
+    loadDashboardData();
+    loadRecentActivity();
+    
+    // Set up auto-refresh
+    const interval = localStorage.getItem('dashboard-refresh-interval') || 60;
+    if (interval > 0) {
+        setRefreshInterval(interval * 1000);
+    }
+    
+    // Load saved settings
+    loadDashboardSettings();
+});
+
+function refreshDashboard() {
+    loadDashboardData();
+    loadRecentActivity();
+    showNotification('Dashboard refreshed successfully!', 'success');
+}
+
+function loadDashboardData() {
+    // Simulate loading dashboard statistics
+    $('#security-score').text('85%');
+    $('#recent-scans').text(Math.floor(Math.random() * 10) + 1);
+    
+    // Add some animation to the stats
+    $('.card.bg-success, .card.bg-warning, .card.bg-info').addClass('pulse-animation');
+    setTimeout(() => {
+        $('.pulse-animation').removeClass('pulse-animation');
+    }, 1000);
+}
+
+function loadRecentActivity() {
+    const activities = [
+        {
+            icon: 'fas fa-shield-check',
+            iconClass: 'bg-success',
+            title: 'Security Suite Initialized',
+            description: 'All security tools are ready for use',
+            time: 'Now'
+        },
+        {
+            icon: 'fas fa-tools',
+            iconClass: 'bg-info', 
+            title: '6 Security Tools Available',
+            description: 'Password checker, network analyzer, QR security scanner and more',
+            time: 'Ready'
+        },
+        {
+            icon: 'fas fa-certificate',
+            iconClass: 'bg-primary',
+            title: 'SSL Analyzer Ready',
+            description: 'Check SSL certificates and security configurations',
+            time: '1 min ago'
+        }
+    ];
+    
+    let activityHtml = '';
+    activities.forEach(activity => {
+        activityHtml += `
+            <div class="activity-item">
+                <div class="d-flex align-items-center">
+                    <div class="activity-icon ${activity.iconClass} text-white me-3">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <strong>${activity.title}</strong>
+                        <br><small class="text-muted">${activity.description}</small>
+                    </div>
+                    <small class="text-muted">${activity.time}</small>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#recent-activity').html(activityHtml);
+}
+
+function setRefreshInterval(milliseconds) {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    
+    if (milliseconds > 0) {
+        refreshInterval = setInterval(refreshDashboard, milliseconds);
+    }
+}
+
+function loadDashboardSettings() {
+    // Load saved preferences
+    const interval = localStorage.getItem('dashboard-refresh-interval') || '60';
+    const alertsNotifications = localStorage.getItem('dashboard-alerts-notifications') !== 'false';
+    const scanNotifications = localStorage.getItem('dashboard-scan-notifications') !== 'false';
+    const theme = localStorage.getItem('dashboard-theme') || 'light';
+    
+    // Apply saved settings to form
+    $('#refresh-interval').val(interval);
+    $('#alerts-notifications').prop('checked', alertsNotifications);
+    $('#scan-notifications').prop('checked', scanNotifications);
+    $('#theme-select').val(theme);
+    
+    // Apply theme
+    applyTheme(theme);
+}
+
+function saveDashboardSettings() {
+    const interval = $('#refresh-interval').val();
+    const alertsNotifications = $('#alerts-notifications').is(':checked');
+    const scanNotifications = $('#scan-notifications').is(':checked');
+    const theme = $('#theme-select').val();
+    
+    // Save to localStorage
+    localStorage.setItem('dashboard-refresh-interval', interval);
+    localStorage.setItem('dashboard-alerts-notifications', alertsNotifications);
+    localStorage.setItem('dashboard-scan-notifications', scanNotifications);
+    localStorage.setItem('dashboard-theme', theme);
+    
+    // Update refresh interval
+    setRefreshInterval(interval * 1000);
+    
+    // Apply theme
+    applyTheme(theme);
+    
+    // Close modal
+    $('#settingsModal').modal('hide');
+    
+    // Show success message
+    showNotification('Settings saved successfully!', 'success');
+}
+
+function applyTheme(theme) {
+    // Theme switching logic would go here
+    // For now, just log the selected theme
+    console.log('Theme changed to:', theme);
+}
+
+function showNotification(message, type = 'info') {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                     type === 'error' ? 'alert-danger' : 'alert-info';
+    
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 80px; right: 20px; z-index: 1050;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(notification);
+    
+    setTimeout(function() {
+        notification.alert('close');
+    }, 3000);
+}
+</script>
+{% endblock %}

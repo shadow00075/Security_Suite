@@ -1,0 +1,829 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="qr-security-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-qrcode text-primary"></i> 
+                QR Code Security Scanner
+            </h1>
+            <p class="lead text-muted">Analyze QR codes for security threats including malicious URLs, phishing attempts, and suspicious content</p>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Section -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-10">
+        <div class="alert alert-info border-0 shadow-sm">
+            <h5><i class="fas fa-info-circle me-2"></i>Why QR Code Security Matters</h5>
+            <p class="mb-2"><strong>QR codes are everywhere</strong> - restaurants, events, payments, and more. But they can hide dangerous links or trick you into sharing sensitive information.</p>
+            <p class="mb-0"><strong>Stay safe:</strong> This tool analyzes QR code content to detect phishing attempts, malicious websites, and suspicious patterns before you click or act on them.</p>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-10">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-shield-check me-2"></i>How This Tool Protects You</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success">🔍 What We Analyze:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>URL destinations and domain reputation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>WiFi network security configurations</li>
+                            <li><i class="fas fa-check text-success me-2"></i>SMS and email content for phishing</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Suspicious keywords and patterns</li>
+                            <li><i class="fas fa-check text-success me-2"></i>URL shorteners and hidden destinations</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">📊 Safety Assessment:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-star text-warning me-2"></i>Overall safety score (0-100)</li>
+                            <li><i class="fas fa-shield-alt text-warning me-2"></i>Risk level assessment</li>
+                            <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>Specific security warnings</li>
+                            <li><i class="fas fa-tools text-warning me-2"></i>Actionable recommendations</li>
+                            <li><i class="fas fa-graduation-cap text-warning me-2"></i>Educational explanations</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="alert alert-light mt-3 mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    <strong>Demo Tip:</strong> Try analyzing different types of content like "https://bit.ly/suspicious-link", "WIFI:T:WPA;S:FreeWiFi;P:;;" or "sms:+1234567890?body=Urgent! Click this link to verify your account"
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- QR Analysis Input -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-search"></i> QR Code Content Analysis
+                </h5>
+                <small class="text-muted">Paste or type QR code content for security analysis</small>
+            </div>
+            <div class="card-body">
+                <form id="qr-analysis-form">
+                    <div class="alert alert-warning border-0 mb-4">
+                        <h6 class="mb-2"><i class="fas fa-graduation-cap me-2"></i>Quick Start Guide:</h6>
+                        <p class="mb-2"><strong>Step 1:</strong> Paste QR code content in the text area below</p>
+                        <p class="mb-2"><strong>Step 2:</strong> Select the content type (URL, WiFi, SMS, etc.)</p>
+                        <p class="mb-0"><strong>Step 3:</strong> Click "Analyze Security" to get a detailed safety report</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="qr-content" class="form-label">QR Code Content</label>
+                        <textarea class="form-control" id="qr-content" rows="4" 
+                                  placeholder="Paste QR code content here... 
+Examples:
+• https://example.com/login
+• WIFI:T:WPA;S:MyNetwork;P:password;;
+• sms:+1234567890?body=Your verification code
+• mailto:contact@example.com" required></textarea>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle text-primary me-1"></i>
+                            Paste the actual content that was in the QR code, not the QR image itself.
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="content-type" class="form-label">Content Type</label>
+                            <select class="form-select" id="content-type">
+                                <option value="auto">Auto-detect</option>
+                                <option value="url">Website URL</option>
+                                <option value="wifi">WiFi Network</option>
+                                <option value="sms">SMS Message</option>
+                                <option value="email">Email Address</option>
+                                <option value="phone">Phone Number</option>
+                                <option value="text">Plain Text</option>
+                                <option value="vcard">Contact Card</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="analysis-depth" class="form-label">Analysis Depth</label>
+                            <select class="form-select" id="analysis-depth">
+                                <option value="standard">Standard Analysis</option>
+                                <option value="deep">Deep Security Scan</option>
+                                <option value="quick">Quick Check</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Examples -->
+                    <div class="mb-3">
+                        <label class="form-label">Quick Test Examples</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('url')">
+                                <i class="fas fa-globe"></i> Suspicious URL
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('wifi')">
+                                <i class="fas fa-wifi"></i> WiFi Network
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('sms')">
+                                <i class="fas fa-sms"></i> Phishing SMS
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadExample('safe')">
+                                <i class="fas fa-check"></i> Safe URL
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shield-check me-2"></i>Analyze QR Security
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Guidelines -->
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 80px;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-shield-alt"></i> QR Code Safety Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <h6 class="text-danger">🚨 Red Flags to Watch For:</h6>
+                    <ul class="text-muted mb-3">
+                        <li>Shortened URLs (bit.ly, tinyurl, etc.)</li>
+                        <li>Urgent language ("Act now!", "Limited time")</li>
+                        <li>Requests for passwords or personal info</li>
+                        <li>Unexpected prize or money offers</li>
+                        <li>URLs with many random characters</li>
+                    </ul>
+                    
+                    <h6 class="text-success">✅ Safety Best Practices:</h6>
+                    <ul class="text-muted mb-3">
+                        <li>Only scan QR codes from trusted sources</li>
+                        <li>Preview content before taking action</li>
+                        <li>Verify website URLs match expectations</li>
+                        <li>Use secure WiFi networks (WPA2/WPA3)</li>
+                        <li>Keep your devices updated</li>
+                    </ul>
+                    
+                    <h6 class="text-info">🎯 Common QR Code Types:</h6>
+                    <div class="small">
+                        <div class="mb-2">
+                            <strong>🌐 URLs:</strong> Check domain reputation
+                        </div>
+                        <div class="mb-2">
+                            <strong>📶 WiFi:</strong> Verify network security
+                        </div>
+                        <div class="mb-2">
+                            <strong>📱 SMS:</strong> Review message content
+                        </div>
+                        <div class="mb-2">
+                            <strong>📧 Email:</strong> Generally safe contact info
+                        </div>
+                        <div class="mb-0">
+                            <strong>📞 Phone:</strong> Verify number before calling
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Scans -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-history"></i> Recent Scans
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="recent-scans">
+                    <p class="text-muted small">No recent scans</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> Security Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Scans Today:</span>
+                        <span class="badge bg-primary" id="scans-today">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Threats Detected:</span>
+                        <span class="badge bg-danger" id="threats-detected">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Safe Content:</span>
+                        <span class="badge bg-success" id="safe-content">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div class="row mt-4" id="results-section" style="display: none;">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-clipboard-list"></i> QR Code Security Analysis Results
+                </h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportReport('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDF Report
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="shareResults()">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="analysis-results"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div id="loading" class="text-center mt-4" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Analyzing QR code...</span>
+    </div>
+    <p class="mt-2">Analyzing QR code security...</p>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.qr-security-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.risk-meter {
+    height: 20px;
+    background: linear-gradient(to right, #28a745 0%, #ffc107 50%, #fd7e14 75%, #dc3545 100%);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.risk-indicator {
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: #000;
+    transition: left 0.3s ease;
+}
+
+.warning-item {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.warning-critical {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+}
+
+.warning-high {
+    background: #fff3cd;
+    border-left-color: #fd7e14;
+}
+
+.warning-medium {
+    background: #d1ecf1;
+    border-left-color: #17a2b8;
+}
+
+.recommendation-item {
+    background: #e7f3ff;
+    border-left: 3px solid #007bff;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.safety-score {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.safety-critical { color: #dc3545; }
+.safety-high { color: #fd7e14; }
+.safety-medium { color: #ffc107; }
+.safety-low { color: #28a745; }
+
+.content-preview {
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.finding-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    border-left: 3px solid #007bff;
+    background: #f8f9fa;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let scanHistory = [];
+let dailyStats = { scans: 0, threats: 0, safe: 0 };
+
+$(document).ready(function() {
+    // Load stored statistics
+    loadDailyStats();
+    updateStatsDisplay();
+    
+    // Form submission
+    $('#qr-analysis-form').on('submit', function(e) {
+        e.preventDefault();
+        analyzeQRSecurity();
+    });
+    
+    // Auto-detect content type on input
+    $('#qr-content').on('input', function() {
+        if ($('#content-type').val() === 'auto') {
+            detectContentType();
+        }
+    });
+});
+
+function loadExample(type) {
+    const examples = {
+        'url': 'https://bit.ly/suspicious-login-page',
+        'wifi': 'WIFI:T:WPA;S:FreePublicWiFi;P:;;',
+        'sms': 'sms:+1234567890?body=URGENT! Your account will be suspended. Click this link to verify: http://fake-bank.net/verify',
+        'safe': 'https://github.com/security/best-practices'
+    };
+    
+    $('#qr-content').val(examples[type]);
+    detectContentType();
+}
+
+function detectContentType() {
+    const content = $('#qr-content').val().toLowerCase();
+    let detectedType = 'text';
+    
+    if (content.startsWith('http://') || content.startsWith('https://') || content.includes('www.')) {
+        detectedType = 'url';
+    } else if (content.startsWith('wifi:')) {
+        detectedType = 'wifi';
+    } else if (content.startsWith('sms:') || content.startsWith('smsto:')) {
+        detectedType = 'sms';
+    } else if (content.startsWith('mailto:')) {
+        detectedType = 'email';
+    } else if (content.startsWith('tel:')) {
+        detectedType = 'phone';
+    }
+    
+    if ($('#content-type').val() === 'auto') {
+        // Don't change the select value, just show detected type
+        $('#content-type').attr('title', `Detected: ${detectedType.toUpperCase()}`);
+    }
+}
+
+function analyzeQRSecurity() {
+    const content = $('#qr-content').val().trim();
+    
+    if (!content) {
+        showNotification('Please enter QR code content to analyze.', 'warning');
+        return;
+    }
+    
+    // Show loading
+    $('#loading').show();
+    $('#results-section').hide();
+    
+    // Prepare request data
+    const requestData = {
+        qr_content: content,
+        analysis_type: $('#content-type').val() === 'auto' ? 'text' : $('#content-type').val(),
+        analysis_depth: $('#analysis-depth').val()
+    };
+    
+    // Make API request
+    $.ajax({
+        url: '/analyze-qr-security',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                displayResults(response.results);
+                addToScanHistory(content, response.results);
+                updateDailyStats(response.results);
+            } else {
+                showError('Analysis failed: ' + response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            showError('Error during analysis: ' + error);
+        },
+        complete: function() {
+            $('#loading').hide();
+        }
+    });
+}
+
+function displayResults(results) {
+    const safetyScore = results.safety_score || 0;
+    const riskLevel = results.risk_level || 'unknown';
+    const contentType = results.content_type || 'unknown';
+    const warnings = results.warnings || [];
+    const recommendations = results.recommendations || [];
+    
+    let html = '';
+    
+    // Safety Score Header
+    html += `
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-${getSafetyColor(riskLevel)} shadow">
+                    <div class="card-header bg-${getSafetyColor(riskLevel)} text-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h4 class="mb-0">QR Code Security Analysis</h4>
+                                <small>Content Type: ${contentType.toUpperCase()}</small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <i class="fas ${getSafetyIcon(riskLevel)} fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="safety-score safety-${riskLevel} mb-3">${safetyScore}/100</h1>
+                        <h5 class="text-${getSafetyColor(riskLevel)} mb-3">${getRiskLevelText(riskLevel)}</h5>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar bg-${getSafetyColor(riskLevel)}" style="width: ${safetyScore}%" role="progressbar">
+                                <strong>${safetyScore}%</strong>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0">${getSafetyDescription(riskLevel, safetyScore)}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Content Preview
+    const contentPreview = results.decoded_content || 'No content detected';
+    html += `
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-eye me-2"></i>QR Code Content</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="content-preview">${escapeHtml(contentPreview)}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Warnings Section
+    if (warnings.length > 0) {
+        html += `
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Security Warnings (${warnings.length})</h6>
+                        </div>
+                        <div class="card-body">
+                            ${warnings.map(warning => `
+                                <div class="warning-item warning-${riskLevel}">
+                                    <i class="fas fa-exclamation-circle me-2"></i>${warning}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Recommendations Section
+    if (recommendations.length > 0) {
+        html += `
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Security Recommendations</h6>
+                        </div>
+                        <div class="card-body">
+                            ${recommendations.map(rec => `
+                                <div class="recommendation-item">
+                                    <i class="fas fa-check-circle me-2"></i>${rec}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Detailed Analysis
+    html += `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-search me-2"></i>Analysis Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="finding-item">
+                            <strong>Content Type:</strong> ${contentType.toUpperCase()}
+                        </div>
+                        <div class="finding-item">
+                            <strong>Content Length:</strong> ${contentPreview.length} characters
+                        </div>
+                        <div class="finding-item">
+                            <strong>Risk Assessment:</strong> ${getRiskLevelText(riskLevel)}
+                        </div>
+                        <div class="finding-item">
+                            <strong>Warnings Found:</strong> ${warnings.length}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Security Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        ${getSecuritySummary(results)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#analysis-results').html(html);
+    $('#results-section').show();
+    
+    // Scroll to results
+    $('html, body').animate({
+        scrollTop: $("#results-section").offset().top - 100
+    }, 500);
+}
+
+function getSecuritySummary(results) {
+    const contentType = results.content_type || 'unknown';
+    const securityAnalysis = results.security_analysis || {};
+    
+    let summary = '';
+    
+    if (contentType === 'url') {
+        const domainRep = securityAnalysis.domain_reputation || {};
+        const urlAnalysis = securityAnalysis.url_analysis || {};
+        
+        summary += `
+            <div class="finding-item">
+                <strong>Domain:</strong> ${urlAnalysis.domain || 'Unknown'}
+            </div>
+            <div class="finding-item">
+                <strong>Protocol:</strong> ${urlAnalysis.scheme || 'Unknown'}
+            </div>
+            <div class="finding-item">
+                <strong>Reputation:</strong> ${domainRep.status || 'Unknown'}
+            </div>
+        `;
+    } else if (contentType === 'wifi') {
+        const wifiDetails = securityAnalysis.wifi_details || {};
+        
+        summary += `
+            <div class="finding-item">
+                <strong>Network:</strong> ${wifiDetails.network_name || 'Unknown'}
+            </div>
+            <div class="finding-item">
+                <strong>Security:</strong> ${wifiDetails.security_type || 'Unknown'}
+            </div>
+            <div class="finding-item">
+                <strong>Password:</strong> ${wifiDetails.password_provided ? 'Provided' : 'None'}
+            </div>
+        `;
+    } else {
+        summary += `
+            <div class="finding-item">
+                Generally safe content type with standard security considerations.
+            </div>
+        `;
+    }
+    
+    return summary;
+}
+
+function addToScanHistory(content, results) {
+    const scanEntry = {
+        content: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+        timestamp: new Date().toLocaleString(),
+        safety_score: results.safety_score || 0,
+        risk_level: results.risk_level || 'unknown'
+    };
+    
+    scanHistory.unshift(scanEntry);
+    if (scanHistory.length > 5) {
+        scanHistory = scanHistory.slice(0, 5);
+    }
+    
+    updateScanHistoryDisplay();
+}
+
+function updateScanHistoryDisplay() {
+    let historyHtml = '';
+    
+    if (scanHistory.length === 0) {
+        historyHtml = '<p class="text-muted small">No recent scans</p>';
+    } else {
+        scanHistory.forEach(scan => {
+            const colorClass = getSafetyColor(scan.risk_level);
+            historyHtml += `
+                <div class="small border-bottom pb-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-truncate me-2">${scan.content}</div>
+                        <span class="badge bg-${colorClass}">${scan.safety_score}</span>
+                    </div>
+                    <div class="text-muted">${scan.timestamp}</div>
+                </div>
+            `;
+        });
+    }
+    
+    $('#recent-scans').html(historyHtml);
+}
+
+function updateDailyStats(results) {
+    dailyStats.scans++;
+    
+    if (results.risk_level === 'critical' || results.risk_level === 'high') {
+        dailyStats.threats++;
+    } else {
+        dailyStats.safe++;
+    }
+    
+    updateStatsDisplay();
+    saveDailyStats();
+}
+
+function updateStatsDisplay() {
+    $('#scans-today').text(dailyStats.scans);
+    $('#threats-detected').text(dailyStats.threats);
+    $('#safe-content').text(dailyStats.safe);
+}
+
+function loadDailyStats() {
+    const stored = localStorage.getItem('qrSecurityStats');
+    const today = new Date().toDateString();
+    
+    if (stored) {
+        const data = JSON.parse(stored);
+        if (data.date === today) {
+            dailyStats = data.stats;
+        }
+    }
+}
+
+function saveDailyStats() {
+    const data = {
+        date: new Date().toDateString(),
+        stats: dailyStats
+    };
+    localStorage.setItem('qrSecurityStats', JSON.stringify(data));
+}
+
+// Utility functions
+function getSafetyColor(riskLevel) {
+    const colors = {
+        'low': 'success',
+        'medium': 'warning', 
+        'high': 'warning',
+        'critical': 'danger'
+    };
+    return colors[riskLevel] || 'secondary';
+}
+
+function getSafetyIcon(riskLevel) {
+    const icons = {
+        'low': 'fa-shield-check',
+        'medium': 'fa-shield-alt',
+        'high': 'fa-exclamation-triangle',
+        'critical': 'fa-skull-crossbones'
+    };
+    return icons[riskLevel] || 'fa-question-circle';
+}
+
+function getRiskLevelText(riskLevel) {
+    const texts = {
+        'low': 'Low Risk - Generally Safe',
+        'medium': 'Medium Risk - Exercise Caution',
+        'high': 'High Risk - Proceed with Extreme Caution',
+        'critical': 'Critical Risk - Do Not Proceed'
+    };
+    return texts[riskLevel] || 'Unknown Risk Level';
+}
+
+function getSafetyDescription(riskLevel, score) {
+    if (riskLevel === 'low') {
+        return 'This QR code appears to be safe based on our analysis.';
+    } else if (riskLevel === 'medium') {
+        return 'Some potential security concerns detected. Verify the source before proceeding.';
+    } else if (riskLevel === 'high') {
+        return 'Significant security risks identified. Exercise extreme caution.';
+    } else if (riskLevel === 'critical') {
+        return 'Critical security threats detected. Do not proceed with this QR code.';
+    }
+    return 'QR code security analysis completed.';
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function exportReport(format) {
+    showNotification('Report export functionality is not implemented in this demo.', 'info');
+}
+
+function shareResults() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'QR Code Security Analysis',
+            text: 'Check out this QR code security analysis result!',
+            url: window.location.href
+        });
+    } else {
+        showNotification('Sharing functionality not available in this browser.', 'info');
+    }
+}
+
+function showError(message) {
+    showNotification(message, 'danger');
+    $('#results-section').hide();
+}
+
+function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    $('.alert-notification').remove();
+    
+    const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show alert-notification position-fixed" 
+             style="top: 80px; right: 20px; z-index: 1050; max-width: 400px;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('body').append(notification);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+{% endblock %}

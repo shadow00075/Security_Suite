@@ -1,0 +1,731 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hash-generator-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-lock"></i> Hash Generator
+            </h1>
+            <p class="lead text-muted">Generate and verify cryptographic hashes with multiple algorithms</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Hash Generation -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog"></i> Hash Generation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="hash-algorithm" class="form-label">Algorithm</label>
+                            <select class="form-select" id="hash-algorithm">
+                                <option value="md5">MD5</option>
+                                <option value="sha1">SHA-1</option>
+                                <option value="sha224">SHA-224</option>
+                                <option value="sha256" selected>SHA-256</option>
+                                <option value="sha384">SHA-384</option>
+                                <option value="sha512">SHA-512</option>
+                                <option value="bcrypt">bcrypt (Password Hashing)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="hash-action" class="form-label">Action</label>
+                            <select class="form-select" id="hash-action">
+                                <option value="generate">Generate Hash</option>
+                                <option value="verify">Verify Hash</option>
+                                <option value="multiple">Multiple Algorithms</option>
+                                <option value="hmac">Generate HMAC</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="input-text" class="form-label">Input Text</label>
+                    <textarea class="form-control" id="input-text" rows="3" 
+                              placeholder="Enter text to hash..."></textarea>
+                </div>
+                
+                <!-- HMAC Key Field -->
+                <div class="mb-3" id="hmac-key-field" style="display: none;">
+                    <label for="hmac-key" class="form-label">HMAC Key</label>
+                    <input type="text" class="form-control" id="hmac-key" 
+                           placeholder="Enter secret key for HMAC...">
+                </div>
+                
+                <!-- Verification Hash Field -->
+                <div class="mb-3" id="verify-hash-field" style="display: none;">
+                    <label for="verify-hash" class="form-label">Expected Hash</label>
+                    <input type="text" class="form-control" id="verify-hash" 
+                           placeholder="Enter hash to verify against...">
+                </div>
+                
+                <!-- bcrypt Rounds -->
+                <div class="mb-3" id="bcrypt-rounds" style="display: none;">
+                    <label for="rounds" class="form-label">bcrypt Rounds</label>
+                    <input type="number" class="form-control" id="rounds" min="4" max="20" value="12">
+                    <div class="form-text">Higher values = more secure but slower (recommended: 12)</div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" onclick="processHash()">
+                        <i class="fas fa-cog"></i> <span id="action-button-text">Generate Hash</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearAll()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="generateSalt()">
+                        <i class="fas fa-random"></i> Generate Salt
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- File Hash Generation -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file"></i> File Hash Generation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="file-input" class="form-label">Select File</label>
+                            <input type="file" class="form-control" id="file-input">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="file-algorithm" class="form-label">Algorithm</label>
+                            <select class="form-select" id="file-algorithm">
+                                <option value="md5">MD5</option>
+                                <option value="sha1">SHA-1</option>
+                                <option value="sha256" selected>SHA-256</option>
+                                <option value="sha512">SHA-512</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="hashFile()" id="file-hash-button">
+                    <i class="fas fa-calculator"></i> Calculate File Hash
+                </button>
+                
+                <div id="file-progress" class="mt-3" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar" id="file-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted">Processing file...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Results -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-clipboard"></i> Results
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="hash-results">
+                    <p class="text-muted">Results will appear here after processing...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Algorithm Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Algorithm Info</h6>
+            </div>
+            <div class="card-body">
+                <div id="algorithm-info">
+                    <div class="small">
+                        <strong>SHA-256</strong><br>
+                        <em>Output:</em> 256 bits (64 hex chars)<br>
+                        <em>Security:</em> High<br>
+                        <em>Use case:</em> General purpose hashing, digital signatures
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="hashQuickText('Hello World')">
+                        <i class="fas fa-bolt"></i> Hash "Hello World"
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="hashCurrentTime()">
+                        <i class="fas fa-clock"></i> Hash Current Timestamp
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="generateRandomString()">
+                        <i class="fas fa-dice"></i> Hash Random String
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="compareHashes()">
+                        <i class="fas fa-balance-scale"></i> Compare Hashes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-shield-alt"></i> Security Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use SHA-256 or higher for security</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Add salt for password hashing</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use bcrypt for passwords</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Never reverse engineer hashes</li>
+                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Verify file integrity with hashes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compare Hashes Modal -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compare Hashes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="hash1" class="form-label">First Hash</label>
+                    <input type="text" class="form-control font-monospace" id="hash1" 
+                           placeholder="Enter first hash...">
+                </div>
+                <div class="mb-3">
+                    <label for="hash2" class="form-label">Second Hash</label>
+                    <input type="text" class="form-control font-monospace" id="hash2" 
+                           placeholder="Enter second hash...">
+                </div>
+                <div id="comparison-result"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="performComparison()">
+                    Compare
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hash-generator-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.font-monospace {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.hash-result {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.hash-result .hash-label {
+    font-weight: bold;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.hash-result .hash-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    word-break: break-all;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.comparison-match {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.comparison-no-match {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.verification-success {
+    border-left: 4px solid #28a745;
+}
+
+.verification-failure {
+    border-left: 4px solid #dc3545;
+}
+
+.copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.hash-result {
+    position: relative;
+}
+
+#algorithm-info {
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let fileHashWorker = null;
+
+$(document).ready(function() {
+    // Handle action change
+    $('#hash-action').change(function() {
+        updateActionInterface();
+    });
+    
+    // Handle algorithm change
+    $('#hash-algorithm').change(function() {
+        updateAlgorithmInfo();
+        updateActionInterface();
+    });
+    
+    // Initial setup
+    updateActionInterface();
+    updateAlgorithmInfo();
+});
+
+function updateActionInterface() {
+    const action = $('#hash-action').val();
+    const algorithm = $('#hash-algorithm').val();
+    
+    // Hide all conditional fields
+    $('#hmac-key-field, #verify-hash-field, #bcrypt-rounds').hide();
+    
+    // Show relevant fields and update button text
+    switch (action) {
+        case 'generate':
+            $('#action-button-text').text('Generate Hash');
+            if (algorithm === 'bcrypt') {
+                $('#bcrypt-rounds').show();
+            }
+            break;
+        case 'verify':
+            $('#action-button-text').text('Verify Hash');
+            $('#verify-hash-field').show();
+            if (algorithm === 'bcrypt') {
+                $('#bcrypt-rounds').show();
+            }
+            break;
+        case 'multiple':
+            $('#action-button-text').text('Generate Multiple');
+            break;
+        case 'hmac':
+            $('#action-button-text').text('Generate HMAC');
+            $('#hmac-key-field').show();
+            break;
+    }
+}
+
+function updateAlgorithmInfo() {
+    const algorithm = $('#hash-algorithm').val();
+    const algorithmInfo = {
+        'md5': {
+            name: 'MD5',
+            output: '128 bits (32 hex chars)',
+            security: 'Deprecated - Use for non-security purposes only',
+            useCase: 'File integrity checks (legacy)'
+        },
+        'sha1': {
+            name: 'SHA-1',
+            output: '160 bits (40 hex chars)',
+            security: 'Deprecated - Vulnerable to collision attacks',
+            useCase: 'Legacy systems, Git commits'
+        },
+        'sha224': {
+            name: 'SHA-224',
+            output: '224 bits (56 hex chars)',
+            security: 'Good',
+            useCase: 'General purpose hashing'
+        },
+        'sha256': {
+            name: 'SHA-256',
+            output: '256 bits (64 hex chars)',
+            security: 'High',
+            useCase: 'General purpose hashing, digital signatures'
+        },
+        'sha384': {
+            name: 'SHA-384',
+            output: '384 bits (96 hex chars)',
+            security: 'High',
+            useCase: 'High-security applications'
+        },
+        'sha512': {
+            name: 'SHA-512',
+            output: '512 bits (128 hex chars)',
+            security: 'High',
+            useCase: 'High-security applications, key derivation'
+        },
+        'bcrypt': {
+            name: 'bcrypt',
+            output: '60 character string',
+            security: 'Very High (for passwords)',
+            useCase: 'Password hashing with salt and rounds'
+        }
+    };
+    
+    const info = algorithmInfo[algorithm] || algorithmInfo['sha256'];
+    
+    $('#algorithm-info').html(`
+        <div class="small">
+            <strong>${info.name}</strong><br>
+            <em>Output:</em> ${info.output}<br>
+            <em>Security:</em> ${info.security}<br>
+            <em>Use case:</em> ${info.useCase}
+        </div>
+    `);
+}
+
+function processHash() {
+    const text = $('#input-text').val();
+    if (!text.trim()) {
+        showNotification('Please enter text to hash.', 'warning');
+        return;
+    }
+    
+    const action = $('#hash-action').val();
+    const algorithm = $('#hash-algorithm').val();
+    
+    let requestData = {
+        text: text,
+        algorithm: algorithm,
+        action: action
+    };
+    
+    // Add additional parameters based on action
+    if (action === 'verify') {
+        const expectedHash = $('#verify-hash').val();
+        if (!expectedHash.trim()) {
+            showNotification('Please enter the expected hash for verification.', 'warning');
+            return;
+        }
+        requestData.expected_hash = expectedHash;
+    }
+    
+    if (action === 'hmac') {
+        const key = $('#hmac-key').val();
+        if (!key.trim()) {
+            showNotification('Please enter a key for HMAC generation.', 'warning');
+            return;
+        }
+        requestData.key = key;
+    }
+    
+    if (algorithm === 'bcrypt') {
+        requestData.rounds = parseInt($('#rounds').val());
+    }
+    
+    showNotification('Processing...', 'info');
+    
+    $.ajax({
+        url: '/tools/generate-hash',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                displayHashResults(response);
+            } else {
+                showNotification('Error: ' + response.error, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            showNotification('Error processing request: ' + error, 'danger');
+        }
+    });
+}
+
+function displayHashResults(response) {
+    let resultsHtml = '';
+    
+    if (response.action === 'verify') {
+        const isValid = response.valid;
+        const resultClass = isValid ? 'verification-success' : 'verification-failure';
+        const resultText = isValid ? 'Hash verification PASSED' : 'Hash verification FAILED';
+        const resultIcon = isValid ? 'check' : 'times';
+        const resultColor = isValid ? 'success' : 'danger';
+        
+        resultsHtml = `
+            <div class="hash-result ${resultClass}">
+                <div class="hash-label">
+                    <i class="fas fa-${resultIcon} text-${resultColor}"></i> ${resultText}
+                </div>
+            </div>
+        `;
+    } else if (response.action === 'multiple') {
+        resultsHtml = '<div class="hash-label mb-2">Multiple Algorithm Results:</div>';
+        
+        if (response.hashes) {
+            Object.entries(response.hashes).forEach(([algo, hash]) => {
+                resultsHtml += createHashResultElement(algo.toUpperCase(), hash);
+            });
+        }
+    } else {
+        // Single hash result
+        const label = response.action === 'hmac' ? 
+            `HMAC-${response.algorithm.toUpperCase()}` : 
+            response.algorithm.toUpperCase();
+        
+        resultsHtml = createHashResultElement(label, response.hash);
+    }
+    
+    $('#hash-results').html(resultsHtml);
+    
+    // Add copy functionality to buttons
+    $('.copy-hash-btn').click(function() {
+        const hash = $(this).data('hash');
+        if (copyToClipboard(hash)) {
+            showNotification('Hash copied to clipboard!', 'success');
+        }
+    });
+    
+    showNotification('Hash processing completed!', 'success');
+}
+
+function createHashResultElement(label, hash) {
+    return `
+        <div class="hash-result">
+            <div class="hash-label">${label}</div>
+            <div class="hash-value">${hash}</div>
+            <button class="btn btn-sm btn-outline-primary copy-hash-btn copy-button" 
+                    data-hash="${hash}" title="Copy to clipboard">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    `;
+}
+
+function hashFile() {
+    const fileInput = $('#file-input')[0];
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showNotification('Please select a file to hash.', 'warning');
+        return;
+    }
+    
+    const algorithm = $('#file-algorithm').val();
+    
+    // Simulate file hashing (in real implementation, this would be done server-side)
+    $('#file-hash-button').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+    $('#file-progress').show();
+    
+    // Simulate progress
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 10;
+        $('#file-progress-bar').css('width', progress + '%');
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            
+            // Simulate hash result (this would come from server)
+            const mockHash = generateMockFileHash(algorithm);
+            
+            const fileResultHtml = `
+                <div class="hash-result">
+                    <div class="hash-label">File: ${file.name}</div>
+                    <div class="hash-label">Algorithm: ${algorithm.toUpperCase()}</div>
+                    <div class="hash-label">Size: ${formatFileSize(file.size)}</div>
+                    <div class="hash-value">${mockHash}</div>
+                    <button class="btn btn-sm btn-outline-primary copy-hash-btn copy-button" 
+                            data-hash="${mockHash}" title="Copy to clipboard">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            `;
+            
+            $('#hash-results').html(fileResultHtml);
+            
+            // Add copy functionality
+            $('.copy-hash-btn').click(function() {
+                const hash = $(this).data('hash');
+                if (copyToClipboard(hash)) {
+                    showNotification('Hash copied to clipboard!', 'success');
+                }
+            });
+            
+            $('#file-hash-button').prop('disabled', false).html('<i class="fas fa-calculator"></i> Calculate File Hash');
+            $('#file-progress').hide();
+            $('#file-progress-bar').css('width', '0%');
+            
+            showNotification(`File hash calculated successfully!`, 'success');
+        }
+    }, 200);
+}
+
+function generateMockFileHash(algorithm) {
+    // Generate a mock hash for demonstration (in real implementation, this would be calculated server-side)
+    const mockHashes = {
+        'md5': 'd41d8cd98f00b204e9800998ecf8427e',
+        'sha1': 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+        'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        'sha512': 'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e'
+    };
+    
+    return mockHashes[algorithm] || mockHashes['sha256'];
+}
+
+function hashQuickText(text) {
+    $('#input-text').val(text);
+    processHash();
+}
+
+function hashCurrentTime() {
+    const timestamp = new Date().toISOString();
+    $('#input-text').val(timestamp);
+    processHash();
+}
+
+function generateRandomString() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 16; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    $('#input-text').val(result);
+    processHash();
+}
+
+function generateSalt() {
+    const saltLength = 32;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    let salt = '';
+    
+    for (let i = 0; i < saltLength; i++) {
+        salt += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    const saltResult = `
+        <div class="hash-result">
+            <div class="hash-label">Generated Salt (32 characters)</div>
+            <div class="hash-value">${salt}</div>
+            <button class="btn btn-sm btn-outline-primary copy-hash-btn copy-button" 
+                    data-hash="${salt}" title="Copy to clipboard">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+    `;
+    
+    $('#hash-results').html(saltResult);
+    
+    $('.copy-hash-btn').click(function() {
+        const hash = $(this).data('hash');
+        if (copyToClipboard(hash)) {
+            showNotification('Salt copied to clipboard!', 'success');
+        }
+    });
+    
+    showNotification('Random salt generated!', 'success');
+}
+
+function compareHashes() {
+    $('#compareModal').modal('show');
+}
+
+function performComparison() {
+    const hash1 = $('#hash1').val().trim();
+    const hash2 = $('#hash2').val().trim();
+    
+    if (!hash1 || !hash2) {
+        $('#comparison-result').html('<div class="alert alert-warning">Please enter both hashes to compare.</div>');
+        return;
+    }
+    
+    const isMatch = hash1.toLowerCase() === hash2.toLowerCase();
+    const resultClass = isMatch ? 'alert-success comparison-match' : 'alert-danger comparison-no-match';
+    const resultIcon = isMatch ? 'check' : 'times';
+    const resultText = isMatch ? 'Hashes MATCH' : 'Hashes DO NOT MATCH';
+    
+    $('#comparison-result').html(`
+        <div class="alert ${resultClass}">
+            <i class="fas fa-${resultIcon}"></i> <strong>${resultText}</strong>
+        </div>
+    `);
+}
+
+function clearAll() {
+    $('#input-text').val('');
+    $('#hmac-key').val('');
+    $('#verify-hash').val('');
+    $('#hash-results').html('<p class="text-muted">Results will appear here after processing...</p>');
+    $('#file-input').val('');
+    showNotification('All fields cleared.', 'info');
+}
+
+function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    $('.alert-notification').remove();
+    
+    const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show alert-notification" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('.container-fluid').prepend(notification);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+{% endblock %}

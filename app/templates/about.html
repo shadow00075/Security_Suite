@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="about-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-info-circle text-primary"></i> 
+                About Capstone Security Suite
+            </h1>
+            <p class="lead text-muted">A comprehensive cybersecurity toolkit for modern security professionals</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Project Overview -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-project-diagram"></i> Project Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    The Capstone Security Suite is a comprehensive web-based cybersecurity toolkit developed as part 
+                    of the CS 499D capstone project. It combines multiple security tools and an intelligent 
+                    anomaly-based intrusion detection system into a single, unified platform.
+                </p>
+                
+                <p>
+                    Built with Python and Flask, this suite provides security professionals, students, and 
+                    researchers with powerful tools for security assessment, monitoring, and analysis.
+                </p>
+                
+                <h6 class="mt-4 mb-3">Key Objectives</h6>
+                <ul>
+                    <li>Provide an integrated platform for common security tools</li>
+                    <li>Implement machine learning-based intrusion detection</li>
+                    <li>Create intelligent password generation with personalized recommendations</li>
+                    <li>Offer comprehensive network analysis and QR code security assessment</li>
+                    <li>Deliver a user-friendly web interface for all security operations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Technical Architecture -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs"></i> Technical Architecture
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Frontend Technologies</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-html5 text-danger"></i> HTML5</li>
+                            <li><i class="fab fa-css3-alt text-primary"></i> CSS3 & Bootstrap 5</li>
+                            <li><i class="fab fa-js-square text-warning"></i> JavaScript & jQuery</li>
+                            <li><i class="fas fa-mobile-alt text-info"></i> Responsive Design</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Backend Technologies</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-python text-success"></i> Python 3.8+</li>
+                            <li><i class="fas fa-server text-primary"></i> Flask Web Framework</li>
+                            <li><i class="fas fa-brain text-info"></i> NumPy & Pandas</li>
+                            <li><i class="fas fa-shield-alt text-danger"></i> Security Libraries</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h6 class="mt-4 mb-3">Architecture Pattern</h6>
+                <p>
+                    The application follows a modular MVC (Model-View-Controller) architecture with clear 
+                    separation of concerns:
+                </p>
+                <ul>
+                    <li><strong>Models:</strong> Security modules containing business logic for each tool</li>
+                    <li><strong>Views:</strong> HTML templates with responsive design</li>
+                    <li><strong>Controllers:</strong> Flask routes handling HTTP requests and responses</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Security Features -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt"></i> Security Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-key text-primary"></i> Smart Password Generator</h6>
+                            <p class="small text-muted">
+                                AI-powered password generation based on security questionnaire analysis
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-search text-success"></i> Advanced Port Scanner</h6>
+                            <p class="small text-muted">
+                                Multi-threaded port scanning with service detection and security analysis
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-lock text-warning"></i> Cryptographic Tools</h6>
+                            <p class="small text-muted">
+                                Multiple hash algorithms, HMAC generation, and password hashing
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-network-wired text-info"></i> Network Analysis</h6>
+                            <p class="small text-muted">
+                                Interface monitoring, connection tracking, and network discovery
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-qrcode text-danger"></i> QR Code Security Scanner</h6>
+                            <p class="small mb-3">
+                                Advanced QR code analysis with security threat detection
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="feature-item">
+                            <h6><i class="fas fa-exclamation-triangle text-dark"></i> Intrusion Detection</h6>
+                            <p class="small text-muted">
+                                Machine learning-based anomaly detection with real-time monitoring
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> Project Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="stat-row mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Security Tools</span>
+                        <strong>6</strong>
+                    </div>
+                </div>
+                
+                <div class="stat-row mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Hash Algorithms</span>
+                        <strong>10+</strong>
+                    </div>
+                </div>
+                
+                <div class="stat-row mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Detection Methods</span>
+                        <strong>2</strong>
+                    </div>
+                </div>
+                
+                <div class="stat-row mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Languages</span>
+                        <strong>Python, JS, HTML</strong>
+                    </div>
+                </div>
+                
+                <div class="stat-row">
+                    <div class="d-flex justify-content-between">
+                        <span>Platform</span>
+                        <strong>Cross-platform</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Stack -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-layer-group"></i> Technology Stack
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="tech-stack">
+                    <div class="tech-item mb-2">
+                        <span class="badge bg-primary me-2">Backend</span>
+                        Python, Flask, NumPy, Pandas
+                    </div>
+                    
+                    <div class="tech-item mb-2">
+                        <span class="badge bg-success me-2">Frontend</span>
+                        HTML5, CSS3, JavaScript, Bootstrap
+                    </div>
+                    
+                    <div class="tech-item mb-2">
+                        <span class="badge bg-warning me-2">Security</span>
+                        bcrypt, cryptography, psutil
+                    </div>
+                    
+                    <div class="tech-item mb-2">
+                        <span class="badge bg-info me-2">Network</span>
+                        requests, netifaces, scapy
+                    </div>
+                    
+                    <div class="tech-item">
+                        <span class="badge bg-dark me-2">ML</span>
+                        scikit-learn, statistical analysis
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Development Info -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-code"></i> Development Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="dev-info">
+                    <p class="mb-2">
+                        <strong>Course:</strong> CS 499D - Capstone Project
+                    </p>
+                    <p class="mb-2">
+                        <strong>Institution:</strong> MSU
+                    </p>
+                    <p class="mb-2">
+                        <strong>Semester:</strong> Fall 2024-2025
+                    </p>
+                    <p class="mb-2">
+                        <strong>Version:</strong> 4.0.0
+                    </p>
+                    <p class="mb-0">
+                        <strong>Purpose:</strong> Educational Use
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Notice -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+            <h6 class="alert-heading">
+                <i class="fas fa-exclamation-triangle"></i> Important Security Notice
+            </h6>
+            <p class="mb-0">
+                This security suite is designed for educational and authorized testing purposes only. 
+                Users must ensure they have proper authorization before scanning or testing any systems. 
+                Always comply with applicable laws and regulations when using these security tools.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.about-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.feature-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    height: 100%;
+}
+
+.feature-item h6 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.stat-row {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.tech-item {
+    font-size: 0.9rem;
+}
+
+.dev-info p {
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

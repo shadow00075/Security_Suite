@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Educational Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-desktop me-2"></i>What is System Information Analysis?</h4>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">System information analysis provides a comprehensive overview of your computer's security posture by examining hardware, software, and configuration details that could impact security.</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">🔍 Why It Matters:</h6>
+                            <ul class="list-unstyled ms-3">
+                                <li>• Identifies potential security vulnerabilities</li>
+                                <li>• Monitors system resources and performance</li>
+                                <li>• Checks security software status</li>
+                                <li>• Detects suspicious processes or configurations</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success">✅ Security Benefits:</h6>
+                            <ul class="list-unstyled ms-3">
+                                <li>• Baseline security assessment</li>
+                                <li>• Resource monitoring for anomalies</li>
+                                <li>• Hardware/software inventory</li>
+                                <li>• Compliance verification</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>How This Tool Works</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="p-3">
+                                <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                                <h6>1. System Scan</h6>
+                                <small>Collects hardware, software, and configuration data</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3">
+                                <i class="fas fa-shield-check fa-3x text-success mb-3"></i>
+                                <h6>2. Security Analysis</h6>
+                                <small>Analyzes security software, processes, and vulnerabilities</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="p-3">
+                                <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                                <h6>3. Report Generation</h6>
+                                <small>Provides detailed findings and recommendations</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-desktop me-2"></i>System Information Analyzer
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 text-center">
+                        <p class="text-muted">
+                            Click the button below to perform a comprehensive system analysis. 
+                            This will gather information about your system's hardware, security software, 
+                            network configuration, and provide security recommendations.
+                        </p>
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> This analysis is read-only and does not make any changes to your system.
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <button id="analyze-btn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play me-2"></i>Start System Analysis
+                        </button>
+                    </div>
+                    
+                    <!-- Loading Spinner -->
+                    <div id="loading" style="display: none;" class="text-center my-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Analyzing...</span>
+                        </div>
+                        <p class="mt-2">Analyzing system information...</p>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="results-section" style="display: none;">
+                        <hr>
+                        <h6><i class="fas fa-chart-bar me-2"></i>Analysis Results</h6>
+                        <div id="analysis-results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('analyze-btn').addEventListener('click', function() {
+    // Show loading spinner
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results-section').style.display = 'none';
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
+    
+    // Make the API request
+    fetch('/tools/analyze-system', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide loading spinner
+        document.getElementById('loading').style.display = 'none';
+        
+        // Reset button
+        const btn = document.getElementById('analyze-btn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Re-analyze System';
+        
+        if (data.success) {
+            displayResults(data.results);
+        } else {
+            displayError(data.error);
+        }
+    })
+    .catch(error => {
+        document.getElementById('loading').style.display = 'none';
+        const btn = document.getElementById('analyze-btn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play me-2"></i>Start System Analysis';
+        displayError('Network error: ' + error.message);
+    });
+});
+
+function displayResults(results) {
+    const resultsDiv = document.getElementById('analysis-results');
+    
+    let html = '';
+    
+    // System Information
+    if (results.system_info && !results.system_info.error) {
+        html += `
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-computer me-2"></i>System Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr><td><strong>System:</strong></td><td>${results.system_info.system}</td></tr>
+                            <tr><td><strong>Release:</strong></td><td>${results.system_info.release}</td></tr>
+                            <tr><td><strong>Machine:</strong></td><td>${results.system_info.machine}</td></tr>
+                            <tr><td><strong>Hostname:</strong></td><td>${results.system_info.hostname}</td></tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr><td><strong>Python:</strong></td><td>${results.system_info.python_version}</td></tr>
+                            <tr><td><strong>Uptime:</strong></td><td>${results.system_info.uptime_hours} hours</td></tr>
+                            <tr><td><strong>Boot Time:</strong></td><td>${new Date(results.system_info.boot_time).toLocaleString()}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    // Hardware Information
+    if (results.hardware_info && !results.hardware_info.error) {
+        html += `
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="fas fa-microchip me-2"></i>Hardware Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>CPU</h6>
+                        <p class="small mb-2">Cores: ${results.hardware_info.cpu.physical_cores} physical, ${results.hardware_info.cpu.total_cores} logical</p>
+                        <p class="small mb-2">Usage: ${results.hardware_info.cpu.usage_percent}%</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Memory</h6>
+                        <p class="small mb-2">Total: ${results.hardware_info.memory.total}</p>
+                        <p class="small mb-2">Used: ${results.hardware_info.memory.used} (${results.hardware_info.memory.percentage}%)</p>
+                        <p class="small mb-2">Available: ${results.hardware_info.memory.available}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Primary Disk</h6>
+                        <p class="small mb-2">Total: ${results.hardware_info.disk.total}</p>
+                        <p class="small mb-2">Used: ${results.hardware_info.disk.used} (${results.hardware_info.disk.percentage}%)</p>
+                        <p class="small mb-2">Free: ${results.hardware_info.disk.free}</p>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    // Security Information
+    if (results.security_info && !results.security_info.error) {
+        html += `
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Security Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Security Status</h6>
+                        <p class="small mb-2"><strong>Firewall:</strong> 
+                            <span class="badge ${results.security_info.firewall_status === 'Active' ? 'bg-success' : 'bg-warning'}">${results.security_info.firewall_status}</span>
+                        </p>
+                        <p class="small mb-2"><strong>Windows Defender:</strong> 
+                            <span class="badge ${results.security_info.windows_defender_status === 'Active' ? 'bg-success' : 'bg-warning'}">${results.security_info.windows_defender_status}</span>
+                        </p>
+                        <p class="small mb-2"><strong>Admin Privileges:</strong> 
+                            <span class="badge ${results.security_info.running_as_admin ? 'bg-danger' : 'bg-success'}">${results.security_info.running_as_admin ? 'Yes' : 'No'}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Security Processes</h6>
+                        <div class="small">
+                            ${results.security_info.security_processes.length > 0 ? 
+                                results.security_info.security_processes.slice(0, 5).map(proc => `<span class="badge bg-info me-1">${proc}</span>`).join('') :
+                                '<span class="text-muted">No security processes detected</span>'
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    // Network Information
+    if (results.network_info && !results.network_info.error) {
+        html += `
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-network-wired me-2"></i>Network Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Network Stats</h6>
+                        <p class="small mb-2">Bytes Sent: ${results.network_info.network_stats.bytes_sent}</p>
+                        <p class="small mb-2">Bytes Received: ${results.network_info.network_stats.bytes_recv}</p>
+                        <p class="small mb-2">Active Connections: ${results.network_info.active_connections}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Network Interfaces</h6>
+                        <div class="small">
+                            ${results.network_info.interfaces.slice(0, 3).map(iface => 
+                                `<div class="mb-2">
+                                    <strong>${iface.name}:</strong><br>
+                                    ${iface.addresses.map(addr => `${addr.type}: ${addr.address}`).join('<br>')}
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    // Security Recommendations
+    if (results.recommendations && results.recommendations.length > 0) {
+        html += `
+        <div class="card mb-3">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Security Recommendations</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    ${results.recommendations.map(rec => `<li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>${rec}</li>`).join('')}
+                </ul>
+            </div>
+        </div>`;
+    }
+    
+    resultsDiv.innerHTML = html;
+    document.getElementById('results-section').style.display = 'block';
+}
+
+function displayError(error) {
+    const resultsDiv = document.getElementById('analysis-results');
+    resultsDiv.innerHTML = `
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Analysis Failed:</strong> ${error}
+        </div>`;
+    document.getElementById('results-section').style.display = 'block';
+}
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}

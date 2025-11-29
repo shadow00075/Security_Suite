@@ -1,0 +1,718 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="port-scanner-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-search"></i> Port Scanner
+            </h1>
+            <p class="lead text-muted">Scan network ports for security assessment and service discovery</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-network-wired"></i> Port Scan Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="port-scan-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="target-host" class="form-label">
+                                    Target Host/IP 
+                                    <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                       title="Enter an IP address (e.g., 192.168.1.1) or domain name (e.g., example.com) to scan"></i>
+                                </label>
+                                <input type="text" class="form-control" id="target-host" 
+                                       placeholder="192.168.1.1 or example.com" required>
+                                <div class="form-text">
+                                    <strong>Examples:</strong><br>
+                                    • <code>192.168.1.1</code> (local router)<br>
+                                    • <code>127.0.0.1</code> (your own computer)<br>
+                                    • <code>google.com</code> (public website)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="scan-type" class="form-label">
+                                    Scan Type
+                                    <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                       title="Choose how many ports to scan. Quick scan is fastest and good for beginners."></i>
+                                </label>
+                                <select class="form-select" id="scan-type">
+                                    <option value="quick">Quick Scan (~50 most common ports) - Recommended for beginners</option>
+                                    <option value="common">Common Ports (~1000 ports) - More comprehensive</option>
+                                    <option value="full">Full Scan (1-65535) - Very slow, for experts only</option>
+                                    <option value="custom">Custom Port Range - Specify exact ports</option>
+                                </select>
+                                <div class="form-text">
+                                    <strong>Tip:</strong> Start with Quick Scan - it covers 95% of common services
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="custom-range" style="display: none;">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start-port" class="form-label">Start Port</label>
+                                <input type="number" class="form-control" id="start-port" min="1" max="65535" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end-port" class="form-label">End Port</label>
+                                <input type="number" class="form-control" id="end-port" min="1" max="65535" value="1000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="timeout" class="form-label">
+                                    Timeout (seconds)
+                                    <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                       title="How long to wait for each port to respond. Lower = faster scan but may miss slow services."></i>
+                                </label>
+                                <input type="number" class="form-control" id="timeout" min="1" max="30" value="3">
+                                <div class="form-text">
+                                    <strong>Recommended:</strong> 3 seconds for most scans
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="max-threads" class="form-label">
+                                    Max Threads
+                                    <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                       title="Number of simultaneous connections. Higher = faster but uses more system resources."></i>
+                                </label>
+                                <input type="number" class="form-control" id="max-threads" min="1" max="200" value="50">
+                                <div class="form-text">
+                                    <strong>Beginner tip:</strong> Use 50 for normal scanning, 100+ for fast computers
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="startPortScan()" id="scan-button">
+                        <i class="fas fa-play"></i> Start Scan
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearResults()">
+                        <i class="fas fa-trash"></i> Clear Results
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Scan Progress -->
+        <div class="card mt-4" id="progress-card" style="display: none;">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-spinner fa-spin"></i> Scan Progress
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-2">
+                    <div class="progress-bar" id="scan-progress" style="width: 0%"></div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <small id="progress-text">Starting scan...</small>
+                    <small id="progress-percent">0%</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scan Results -->
+        <div class="card mt-4" id="results-card" style="display: none;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-list"></i> Scan Results
+                </h6>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportResults('json')">
+                        <i class="fas fa-download"></i> JSON
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportResults('csv')">
+                        <i class="fas fa-download"></i> CSV
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="results-summary" class="mb-3">
+                    <!-- Summary will be populated here -->
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped" id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Port</th>
+                                <th>Status</th>
+                                <th>Service</th>
+                                <th>Description</th>
+                                <th>Security Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Getting Started Guide -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-question-circle"></i> Getting Started
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <p><strong>What is Port Scanning?</strong></p>
+                    <p class="text-muted mb-3">Port scanning checks which network services (like websites, email servers, databases) are running on a computer or server by testing different "ports" (communication endpoints).</p>
+                    
+                    <p><strong>Why Use This Tool?</strong></p>
+                    <ul class="text-muted mb-3">
+                        <li>Find security vulnerabilities</li>
+                        <li>Inventory network services</li>
+                        <li>Troubleshoot connectivity issues</li>
+                        <li>Verify firewall rules</li>
+                    </ul>
+                    
+                    <p><strong>How to Start:</strong></p>
+                    <ol class="text-muted mb-0">
+                        <li>Enter a target IP (e.g., 192.168.1.1) or domain (e.g., google.com)</li>
+                        <li>Choose "Quick Scan" for common services</li>
+                        <li>Click "Start Scan" and wait for results</li>
+                        <li>Review open ports and security recommendations</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Quick Scans
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">Pre-configured scans for common services:</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickScan('web')" title="Scan for web servers and HTTP services">
+                        <i class="fas fa-globe"></i> Web Servers 
+                        <small class="d-block text-muted">Ports 80, 443, 8080, 8443</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickScan('mail')" title="Scan for email services">
+                        <i class="fas fa-envelope"></i> Mail Servers
+                        <small class="d-block text-muted">Ports 25, 110, 143, 993, 995</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickScan('database')" title="Scan for database services">
+                        <i class="fas fa-database"></i> Database Servers
+                        <small class="d-block text-muted">Ports 3306, 5432, 1433, 27017</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickScan('remote')" title="Scan for remote access services">
+                        <i class="fas fa-desktop"></i> Remote Access
+                        <small class="d-block text-muted">Ports 22, 23, 3389, 5900</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickScan('file')" title="Scan for file sharing services">
+                        <i class="fas fa-folder"></i> File Sharing
+                        <small class="d-block text-muted">Ports 21, 135, 139, 445</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Understanding Results -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line"></i> Understanding Results
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-danger me-2">OPEN</span>
+                            <strong>Open Ports</strong>
+                        </div>
+                        <p class="text-muted mb-0">Service is running and accepting connections. These may need security review.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-secondary me-2">CLOSED</span>
+                            <strong>Closed Ports</strong>
+                        </div>
+                        <p class="text-muted mb-0">No service running on this port. This is typically good from a security perspective.</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-warning me-2">FILTERED</span>
+                            <strong>Filtered Ports</strong>
+                        </div>
+                        <p class="text-muted mb-0">Blocked by firewall or network security device. Cannot determine if service is running.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Common Ports Reference -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-book"></i> Common Ports Reference
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-2"><strong>Web Services:</strong></div>
+                    <div class="text-muted mb-3">
+                        <span class="badge bg-light text-dark me-1">80</span> HTTP (websites)<br>
+                        <span class="badge bg-light text-dark me-1">443</span> HTTPS (secure websites)<br>
+                        <span class="badge bg-light text-dark me-1">8080</span> Alternative web port
+                    </div>
+                    
+                    <div class="mb-2"><strong>Remote Access:</strong></div>
+                    <div class="text-muted mb-3">
+                        <span class="badge bg-light text-dark me-1">22</span> SSH (secure remote login)<br>
+                        <span class="badge bg-light text-dark me-1">23</span> Telnet (insecure remote)<br>
+                        <span class="badge bg-light text-dark me-1">3389</span> Windows Remote Desktop
+                    </div>
+                    
+                    <div class="mb-2"><strong>Email Services:</strong></div>
+                    <div class="text-muted mb-3">
+                        <span class="badge bg-light text-dark me-1">25</span> SMTP (sending email)<br>
+                        <span class="badge bg-light text-dark me-1">110</span> POP3 (receiving email)<br>
+                        <span class="badge bg-light text-dark me-1">143</span> IMAP (email access)
+                    </div>
+                    
+                    <div class="mb-2"><strong>File Sharing:</strong></div>
+                    <div class="text-muted">
+                        <span class="badge bg-light text-dark me-1">21</span> FTP (file transfer)<br>
+                        <span class="badge bg-light text-dark me-1">445</span> Windows file sharing<br>
+                        <span class="badge bg-light text-dark me-1">139</span> NetBIOS file sharing
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-shield-alt"></i> Security Best Practices
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="alert alert-warning alert-sm mb-3">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <strong>Legal Notice:</strong> Only scan systems you own or have explicit permission to test. Unauthorized scanning may violate laws and policies.
+                    </div>
+                    
+                    <p><strong>What to Look For:</strong></p>
+                    <ul class="text-muted mb-3">
+                        <li><strong>Unnecessary open ports</strong> - Close services you don't need</li>
+                        <li><strong>Default configurations</strong> - Change default passwords and settings</li>
+                        <li><strong>Outdated services</strong> - Update software regularly</li>
+                        <li><strong>Unencrypted protocols</strong> - Use HTTPS instead of HTTP, SSH instead of Telnet</li>
+                    </ul>
+                    
+                    <p><strong>Security Actions:</strong></p>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use firewalls to filter traffic</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Regularly audit open services</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Monitor for unauthorized access</li>
+                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Implement network segmentation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.port-scanner-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.status-open {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.status-closed {
+    color: #6c757d;
+}
+
+.status-filtered {
+    color: #ffc107;
+}
+
+.security-high {
+    color: #dc3545;
+}
+
+.security-medium {
+    color: #ffc107;
+}
+
+.security-low {
+    color: #28a745;
+}
+
+.alert-sm {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+#results-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.progress {
+    height: 25px;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let scanResults = [];
+let scanInProgress = false;
+
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Handle scan type change
+    $('#scan-type').change(function() {
+        if ($(this).val() === 'custom') {
+            $('#custom-range').show();
+        } else {
+            $('#custom-range').hide();
+        }
+    });
+    
+    // Input validation
+    $('#target-host').on('input', function() {
+        validateInput();
+    });
+});
+
+function validateInput() {
+    const target = $('#target-host').val();
+    const isValid = target && (isValidIP(target) || isValidDomain(target));
+    
+    $('#scan-button').prop('disabled', !isValid || scanInProgress);
+    
+    return isValid;
+}
+
+function startPortScan() {
+    if (!validateInput() || scanInProgress) {
+        return;
+    }
+    
+    const target = $('#target-host').val();
+    const scanType = $('#scan-type').val();
+    const timeout = $('#timeout').val();
+    const maxThreads = $('#max-threads').val();
+    
+    let scanData = {
+        target: target,
+        scan_type: scanType,
+        timeout: parseInt(timeout),
+        max_threads: parseInt(maxThreads)
+    };
+    
+    if (scanType === 'custom') {
+        scanData.start_port = parseInt($('#start-port').val());
+        scanData.end_port = parseInt($('#end-port').val());
+    }
+    
+    scanInProgress = true;
+    $('#scan-button').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Scanning...');
+    $('#progress-card').show();
+    $('#results-card').hide();
+    
+    // Simulate progress (in real implementation, you'd get actual progress from the backend)
+    simulateProgress();
+    
+    $.ajax({
+        url: '/tools/scan-ports',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(scanData),
+        success: function(response) {
+            if (response.success) {
+                displayResults(response.results);
+            } else {
+                showNotification('Scan failed: ' + response.error, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            showNotification('Error during scan: ' + error, 'danger');
+        },
+        complete: function() {
+            scanInProgress = false;
+            $('#scan-button').prop('disabled', false).html('<i class="fas fa-play"></i> Start Scan');
+            $('#progress-card').hide();
+        }
+    });
+}
+
+function simulateProgress() {
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress > 100) {
+            progress = 100;
+            clearInterval(interval);
+        }
+        
+        updateProgress(progress);
+    }, 500);
+}
+
+function updateProgress(percent) {
+    const progressBar = $('#scan-progress');
+    const progressText = $('#progress-text');
+    const progressPercent = $('#progress-percent');
+    
+    progressBar.css('width', percent + '%');
+    progressPercent.text(Math.round(percent) + '%');
+    
+    if (percent < 25) {
+        progressText.text('Initializing scan...');
+    } else if (percent < 50) {
+        progressText.text('Scanning ports...');
+    } else if (percent < 75) {
+        progressText.text('Identifying services...');
+    } else if (percent < 100) {
+        progressText.text('Finalizing results...');
+    } else {
+        progressText.text('Scan completed!');
+    }
+}
+
+function displayResults(results) {
+    scanResults = results;
+    
+    // Show results card
+    $('#results-card').show();
+    
+    // Display summary
+    const openPorts = results.filter(r => r.status === 'open').length;
+    const closedPorts = results.filter(r => r.status === 'closed').length;
+    const totalPorts = results.length;
+    
+    const summaryHtml = `
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">${openPorts}</h5>
+                        <p class="card-text small">Open Ports</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title text-secondary">${closedPorts}</h5>
+                        <p class="card-text small">Closed Ports</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">${totalPorts}</h5>
+                        <p class="card-text small">Total Scanned</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#results-summary').html(summaryHtml);
+    
+    // Display table results
+    const tableBody = $('#results-table tbody');
+    tableBody.empty();
+    
+    results.forEach(result => {
+        const statusClass = getStatusClass(result.status);
+        const securityClass = getSecurityClass(result.security_level || 'low');
+        
+        const row = `
+            <tr>
+                <td>${result.port}</td>
+                <td class="${statusClass}">${result.status.toUpperCase()}</td>
+                <td>${result.service || 'Unknown'}</td>
+                <td>${result.description || '-'}</td>
+                <td class="${securityClass}">${formatSecurityNotes(result.security_notes || [])}</td>
+            </tr>
+        `;
+        
+        tableBody.append(row);
+    });
+    
+    showNotification(`Port scan completed! Found ${openPorts} open port(s).`, 'success');
+}
+
+function getStatusClass(status) {
+    switch (status.toLowerCase()) {
+        case 'open': return 'status-open';
+        case 'closed': return 'status-closed';
+        case 'filtered': return 'status-filtered';
+        default: return '';
+    }
+}
+
+function getSecurityClass(level) {
+    switch (level.toLowerCase()) {
+        case 'high': return 'security-high';
+        case 'medium': return 'security-medium';
+        case 'low': return 'security-low';
+        default: return '';
+    }
+}
+
+function formatSecurityNotes(notes) {
+    if (!notes || notes.length === 0) return '-';
+    return notes.join(', ');
+}
+
+function quickScan(type) {
+    const quickScans = {
+        web: { ports: [80, 443, 8080, 8443], name: 'Web Servers' },
+        mail: { ports: [25, 110, 143, 993, 995], name: 'Mail Servers' },
+        database: { ports: [3306, 5432, 1433, 27017], name: 'Database Servers' },
+        remote: { ports: [22, 23, 3389, 5900], name: 'Remote Access' },
+        file: { ports: [21, 135, 139, 445], name: 'File Sharing' }
+    };
+    
+    const scan = quickScans[type];
+    if (!scan) return;
+    
+    const target = $('#target-host').val();
+    if (!target) {
+        showNotification('Please enter a target host first.', 'warning');
+        $('#target-host').focus();
+        return;
+    }
+    
+    // Set custom scan mode and ports
+    $('#scan-type').val('custom');
+    $('#custom-range').show();
+    
+    showNotification(`Starting ${scan.name} quick scan...`, 'info');
+}
+
+function clearResults() {
+    $('#results-card').hide();
+    $('#progress-card').hide();
+    scanResults = [];
+    showNotification('Results cleared.', 'info');
+}
+
+function exportResults(format) {
+    if (!scanResults || scanResults.length === 0) {
+        showNotification('No results to export.', 'warning');
+        return;
+    }
+    
+    const target = $('#target-host').val();
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const filename = `port_scan_${target}_${timestamp}.${format}`;
+    
+    let content;
+    let mimeType;
+    
+    if (format === 'json') {
+        content = JSON.stringify(scanResults, null, 2);
+        mimeType = 'application/json';
+    } else if (format === 'csv') {
+        const headers = ['Port', 'Status', 'Service', 'Description', 'Security Level'];
+        const rows = scanResults.map(r => [
+            r.port,
+            r.status,
+            r.service || '',
+            r.description || '',
+            r.security_level || ''
+        ]);
+        
+        content = [headers, ...rows].map(row => 
+            row.map(cell => `"${cell}"`).join(',')
+        ).join('\\n');
+        mimeType = 'text/csv';
+    }
+    
+    // Create download link
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification(`Results exported as ${filename}`, 'success');
+}
+
+function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    $('.alert-notification').remove();
+    
+    const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show alert-notification" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('.container-fluid').prepend(notification);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+{% endblock %}

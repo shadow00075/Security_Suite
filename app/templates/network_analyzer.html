@@ -1,0 +1,1227 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="network-analyzer-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-network-wired"></i> Network Analyzer
+            </h1>
+            <p class="lead text-muted">Analyze network interfaces, connections, and traffic patterns</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Network Analysis Tools -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tools"></i> Network Analysis Tools
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="analysis-type" class="form-label">
+                                Analysis Type
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                   title="Choose what kind of network analysis to perform. Start with Network Interfaces for basic info."></i>
+                            </label>
+                            <select class="form-select" id="analysis-type">
+                                <option value="interfaces">Network Interfaces - View network adapters (Beginner friendly)</option>
+                                <option value="connections">Active Connections - Show current network connections</option>
+                                <option value="statistics">Network Statistics - Data usage and transfer rates</option>
+                                <option value="ping">Ping Host - Test connectivity to another computer</option>
+                                <option value="traceroute">Traceroute - Show path to destination (Advanced)</option>
+                                <option value="dns">DNS Lookup - Convert domain names to IP addresses</option>
+                                <option value="discovery">Network Discovery - Find devices on your network (Advanced)</option>
+                                <option value="public-ip">Public IP Info - Show your external IP address</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3" id="target-field" style="display: none;">
+                            <label for="target-host" class="form-label">
+                                Target Host
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                   title="Enter a domain name (like google.com) or IP address (like 8.8.8.8) to analyze"></i>
+                            </label>
+                            <input type="text" class="form-control" id="target-host" 
+                                   placeholder="google.com or 8.8.8.8">
+                            <div class="form-text">
+                                <strong>Examples:</strong> google.com, 8.8.8.8, 192.168.1.1
+                            </div>
+                        </div>
+                        <div class="mb-3" id="network-field" style="display: none;">
+                            <label for="target-network" class="form-label">
+                                Network Range
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                   title="Specify a network range to scan for devices. Use CIDR notation like 192.168.1.0/24"></i>
+                            </label>
+                            <input type="text" class="form-control" id="target-network" 
+                                   placeholder="192.168.1.0/24">
+                            <div class="form-text">
+                                <strong>Common ranges:</strong> 192.168.1.0/24, 10.0.0.0/24
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Options -->
+                <div class="row" id="ping-options" style="display: none;">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="ping-count" class="form-label">
+                                Ping Count
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                   title="Number of ping packets to send. More pings give more accurate results."></i>
+                            </label>
+                            <input type="number" class="form-control" id="ping-count" min="1" max="100" value="4">
+                            <div class="form-text">
+                                <strong>Recommended:</strong> 4 pings for quick test, 10+ for detailed analysis
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row" id="dns-options" style="display: none;">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="dns-record-type" class="form-label">
+                                DNS Record Type
+                                <i class="fas fa-question-circle text-muted" data-bs-toggle="tooltip" 
+                                   title="Choose what type of DNS information to look up. A records are most common."></i>
+                            </label>
+                            <select class="form-select" id="dns-record-type">
+                                <option value="A">A (IPv4 Address) - Most common</option>
+                                <option value="AAAA">AAAA (IPv6 Address) - For newer networks</option>
+                                <option value="MX">MX (Mail Server) - Email routing info</option>
+                                <option value="NS">NS (Name Server) - DNS server info</option>
+                                <option value="TXT">TXT (Text Records) - Various text info</option>
+                                <option value="CNAME">CNAME (Canonical Name) - Domain aliases</option>
+                                <option value="PTR">PTR (Reverse Lookup) - IP to domain</option>
+                            </select>
+                            <div class="form-text">
+                                <strong>Tip:</strong> Use A records to find website IP addresses
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="startAnalysis()" id="analyze-button">
+                    <i class="fas fa-play"></i> Start Analysis
+                </button>
+                <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearResults()">
+                    <i class="fas fa-trash"></i> Clear Results
+                </button>
+                <button type="button" class="btn btn-outline-info ms-2" onclick="refreshData()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+        </div>
+        
+        <!-- Real-time Monitoring -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line"></i> Real-time Monitoring
+                </h6>
+                <div>
+                    <button class="btn btn-sm btn-success" id="start-monitoring" onclick="startMonitoring()">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="stop-monitoring" onclick="stopMonitoring()" style="display: none;">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row" id="monitoring-stats">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1" id="bytes-sent">0 B</div>
+                            <small class="text-muted">Bytes Sent</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1" id="bytes-recv">0 B</div>
+                            <small class="text-muted">Bytes Received</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1" id="packets-sent">0</div>
+                            <small class="text-muted">Packets Sent</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="h4 mb-1" id="packets-recv">0</div>
+                            <small class="text-muted">Packets Received</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <canvas id="networkChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Getting Started Guide -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-graduation-cap"></i> Getting Started
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <p><strong>What is Network Analysis?</strong></p>
+                    <p class="text-muted mb-3">Network analysis examines your computer's network connections, traffic, and configurations to help troubleshoot issues, optimize performance, and identify security problems.</p>
+                    
+                    <p><strong>Common Use Cases:</strong></p>
+                    <ul class="text-muted mb-3">
+                        <li>Troubleshooting internet connectivity</li>
+                        <li>Finding network bottlenecks</li>
+                        <li>Monitoring bandwidth usage</li>
+                        <li>Discovering devices on your network</li>
+                        <li>Checking DNS configuration</li>
+                    </ul>
+                    
+                    <p><strong>Quick Start:</strong></p>
+                    <ol class="text-muted mb-0">
+                        <li>Try "Local Network Info" for basic details</li>
+                        <li>Use "Ping" to test connectivity</li>
+                        <li>Check "DNS Lookup" for domain resolution</li>
+                        <li>View "Network Statistics" for traffic data</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Types Guide -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Analysis Types Explained
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-ethernet text-primary me-2"></i>
+                            <strong>Network Interfaces</strong>
+                        </div>
+                        <p class="text-muted mb-0">Shows your network adapters (WiFi, Ethernet, etc.) and their configuration</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-exchange-alt text-success me-2"></i>
+                            <strong>Active Connections</strong>
+                        </div>
+                        <p class="text-muted mb-0">Lists current network connections to websites, servers, and other computers</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-tachometer-alt text-warning me-2"></i>
+                            <strong>Network Statistics</strong>
+                        </div>
+                        <p class="text-muted mb-0">Shows data usage, transfer speeds, and error counts</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-bullseye text-info me-2"></i>
+                            <strong>Ping Host</strong>
+                        </div>
+                        <p class="text-muted mb-0">Tests if you can reach another computer or website</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-route text-secondary me-2"></i>
+                            <strong>Traceroute</strong>
+                        </div>
+                        <p class="text-muted mb-0">Shows the path your data takes to reach a destination</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-server text-dark me-2"></i>
+                            <strong>DNS Lookup</strong>
+                        </div>
+                        <p class="text-muted mb-0">Converts domain names (like google.com) to IP addresses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">One-click analysis for common tasks:</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickAnalysis('local')" 
+                            title="View your computer's network adapters and IP addresses">
+                        <i class="fas fa-home"></i> Local Network Info
+                        <small class="d-block text-muted">View network adapters & IPs</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickAnalysis('gateway')" 
+                            title="Test connectivity to your router/gateway">
+                        <i class="fas fa-route"></i> Gateway Analysis
+                        <small class="d-block text-muted">Test router connectivity</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickAnalysis('dns')" 
+                            title="Check DNS resolution for popular websites">
+                        <i class="fas fa-server"></i> DNS Configuration
+                        <small class="d-block text-muted">Test domain name resolution</small>
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="quickAnalysis('speed')" 
+                            title="View current network usage and statistics">
+                        <i class="fas fa-tachometer-alt"></i> Connection Statistics
+                        <small class="d-block text-muted">Check bandwidth usage</small>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Network Status -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-pie"></i> Network Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="network-status">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Connection Status</span>
+                        <span class="badge bg-success" id="connection-status">Connected</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Active Interfaces</span>
+                        <span class="badge bg-info" id="active-interfaces">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Active Connections</span>
+                        <span class="badge bg-primary" id="active-connections">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Public IP</span>
+                        <span class="badge bg-secondary font-monospace" id="public-ip">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Common Network Tools -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-wrench"></i> Common Network Tools
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <div class="mb-3">
+                        <strong>Test Connectivity:</strong>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1 mb-1" onclick="pingHost('8.8.8.8')" 
+                                    title="Ping Google's public DNS server">Google DNS (8.8.8.8)</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1 mb-1" onclick="pingHost('1.1.1.1')" 
+                                    title="Ping Cloudflare's public DNS server">Cloudflare (1.1.1.1)</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1 mb-1" onclick="pingHost('google.com')" 
+                                    title="Ping Google's main website">Google.com</button>
+                        </div>
+                        <p class="text-muted mt-1 mb-0">Use ping to test if you can reach specific servers</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Check DNS Resolution:</strong>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1 mb-1" onclick="dnsLookup('google.com')" 
+                                    title="Look up IP address for Google.com">Google.com</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1 mb-1" onclick="dnsLookup('github.com')" 
+                                    title="Look up IP address for GitHub.com">GitHub.com</button>
+                        </div>
+                        <p class="text-muted mt-1 mb-0">DNS converts domain names to IP addresses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Troubleshooting Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-question-circle"></i> Troubleshooting Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="small">
+                    <p><strong>Common Network Issues:</strong></p>
+                    
+                    <div class="mb-2">
+                        <strong class="text-danger">Can't connect to internet:</strong>
+                        <ul class="text-muted mb-1">
+                            <li>Check if Local Network Info shows active interfaces</li>
+                            <li>Try Gateway Analysis to test router connection</li>
+                            <li>Ping 8.8.8.8 to test external connectivity</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong class="text-warning">Website won't load:</strong>
+                        <ul class="text-muted mb-1">
+                            <li>Use DNS Lookup to check if domain resolves</li>
+                            <li>Try pinging the website directly</li>
+                            <li>Check DNS Configuration</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <strong class="text-info">Slow internet:</strong>
+                        <ul class="text-muted mb-0">
+                            <li>Check Connection Statistics for high usage</li>
+                            <li>Look at Active Connections for bandwidth hogs</li>
+                            <li>Monitor Real-time statistics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Results -->
+<div class="row mt-4" id="results-section" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-bar"></i> Analysis Results
+                </h6>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportResults('json')">
+                        <i class="fas fa-download"></i> Export JSON
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportResults('csv')">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="analysis-results">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.network-analyzer-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 3rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.interface-card {
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.interface-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.interface-active {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+}
+
+.interface-inactive {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
+}
+
+.connection-item {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.connection-item:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateX(5px);
+}
+
+.ping-result {
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #007bff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.1);
+}
+
+.traceroute-hop {
+    border-left: 4px solid #007bff;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 0 0.5rem 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.traceroute-hop:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateX(5px);
+}
+
+.dns-record {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #17a2b8;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.1);
+    transition: all 0.2s ease;
+}
+
+.dns-record:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    transform: translateY(-2px);
+}
+
+.network-stat {
+    text-align: center;
+    padding: 1.5rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.network-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.status-online {
+    color: #28a745;
+}
+
+.status-offline {
+    color: #dc3545;
+}
+
+.font-monospace {
+    font-family: 'Courier New', monospace;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let monitoringInterval = null;
+let networkChart = null;
+let chartData = [];
+let analysisResults = {};
+
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Handle analysis type change
+    $('#analysis-type').change(function() {
+        updateAnalysisInterface();
+    });
+    
+    // Initialize interface
+    updateAnalysisInterface();
+    loadNetworkStatus();
+    initializeChart();
+});
+
+function updateAnalysisInterface() {
+    const analysisType = $('#analysis-type').val();
+    
+    // Hide all optional fields
+    $('#target-field, #network-field, #ping-options, #dns-options').hide();
+    
+    // Show relevant fields based on analysis type
+    switch (analysisType) {
+        case 'ping':
+        case 'traceroute':
+            $('#target-field').show();
+            if (analysisType === 'ping') {
+                $('#ping-options').show();
+            }
+            break;
+        case 'dns':
+            $('#target-field').show();
+            $('#dns-options').show();
+            break;
+        case 'discovery':
+            $('#network-field').show();
+            break;
+    }
+}
+
+function startAnalysis() {
+    const analysisType = $('#analysis-type').val();
+    const target = $('#target-host').val();
+    const network = $('#target-network').val();
+    
+    // Validate input for target-based analyses
+    if (['ping', 'traceroute', 'dns'].includes(analysisType) && !target) {
+        showNotification('Please enter a target host for this analysis.', 'warning');
+        return;
+    }
+    
+    if (analysisType === 'discovery' && !network) {
+        showNotification('Please enter a network range for discovery.', 'warning');
+        return;
+    }
+    
+    const requestData = {
+        analysis_type: analysisType,
+        target: target,
+        network: network
+    };
+    
+    // Add additional parameters
+    if (analysisType === 'ping') {
+        requestData.count = parseInt($('#ping-count').val());
+    }
+    
+    if (analysisType === 'dns') {
+        requestData.record_type = $('#dns-record-type').val();
+    }
+    
+    // Show loading state
+    $('#analyze-button').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Analyzing...');
+    
+    showNotification('Starting network analysis...', 'info');
+    
+    $.ajax({
+        url: '/tools/analyze-network',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                analysisResults = response.results;
+                displayAnalysisResults(response.results, analysisType);
+            } else {
+                showNotification('Analysis failed: ' + response.error, 'danger');
+            }
+        },
+        error: function(xhr, status, error) {
+            showNotification('Error during analysis: ' + error, 'danger');
+        },
+        complete: function() {
+            $('#analyze-button').prop('disabled', false).html('<i class="fas fa-play"></i> Start Analysis');
+        }
+    });
+}
+
+function displayAnalysisResults(results, analysisType) {
+    let resultsHtml = '';
+    
+    switch (analysisType) {
+        case 'interfaces':
+            resultsHtml = formatInterfacesResults(results);
+            break;
+        case 'connections':
+            resultsHtml = formatConnectionsResults(results);
+            break;
+        case 'statistics':
+            resultsHtml = formatStatisticsResults(results);
+            break;
+        case 'ping':
+            resultsHtml = formatPingResults(results);
+            break;
+        case 'traceroute':
+            resultsHtml = formatTracerouteResults(results);
+            break;
+        case 'dns':
+            resultsHtml = formatDNSResults(results);
+            break;
+        case 'discovery':
+            resultsHtml = formatDiscoveryResults(results);
+            break;
+        case 'public-ip':
+            resultsHtml = formatPublicIPResults(results);
+            break;
+    }
+    
+    $('#analysis-results').html(resultsHtml);
+    $('#results-section').show();
+    
+    showNotification('Network analysis completed!', 'success');
+}
+
+function formatInterfacesResults(results) {
+    let html = '<h6>Network Interfaces:</h6>';
+    
+    if (results.interfaces) {
+        Object.entries(results.interfaces).forEach(([name, iface]) => {
+            const statusClass = iface.is_up ? 'interface-active' : 'interface-inactive';
+            const statusText = iface.is_up ? 'Active' : 'Inactive';
+            const statusBadge = iface.is_up ? 'bg-success' : 'bg-secondary';
+            
+            html += `
+                <div class="interface-card ${statusClass}">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">${name}</h6>
+                        <span class="badge ${statusBadge}">${statusText}</span>
+                    </div>
+                    <div class="row small">
+                        <div class="col-md-6">
+                            <div><strong>Type:</strong> ${iface.type || 'Unknown'}</div>
+                            <div><strong>MTU:</strong> ${iface.mtu || 'N/A'}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div><strong>Speed:</strong> ${iface.speed || 'Unknown'} Mbps</div>
+                            <div><strong>Duplex:</strong> ${iface.duplex || 'Unknown'}</div>
+                        </div>
+                    </div>
+                    ${iface.addresses ? formatAddresses(iface.addresses) : ''}
+                </div>
+            `;
+        });
+    }
+    
+    return html;
+}
+
+function formatAddresses(addresses) {
+    let html = '<div class="mt-2"><strong>Addresses:</strong></div>';
+    
+    addresses.forEach(addr => {
+        html += `<div class="font-monospace small">${addr.family}: ${addr.address}`;
+        if (addr.netmask) {
+            html += ` / ${addr.netmask}`;
+        }
+        html += `</div>`;
+    });
+    
+    return html;
+}
+
+function formatConnectionsResults(results) {
+    let html = '<h6>Active Network Connections:</h6>';
+    
+    if (results.connections && results.connections.length > 0) {
+        html += '<div class="row">';
+        
+        // Group connections by type
+        const tcpConnections = results.connections.filter(c => c.type === 'tcp');
+        const udpConnections = results.connections.filter(c => c.type === 'udp');
+        
+        if (tcpConnections.length > 0) {
+            html += '<div class="col-md-6"><h6>TCP Connections:</h6>';
+            tcpConnections.forEach(conn => {
+                html += `
+                    <div class="connection-item">
+                        ${conn.local_address}:${conn.local_port} → 
+                        ${conn.remote_address}:${conn.remote_port}
+                        <span class="badge bg-primary ms-2">${conn.status}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        if (udpConnections.length > 0) {
+            html += '<div class="col-md-6"><h6>UDP Connections:</h6>';
+            udpConnections.forEach(conn => {
+                html += `
+                    <div class="connection-item">
+                        ${conn.local_address}:${conn.local_port}
+                        <span class="badge bg-info ms-2">UDP</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
+        
+        html += '</div>';
+    } else {
+        html += '<p class="text-muted">No active connections found.</p>';
+    }
+    
+    return html;
+}
+
+function formatStatisticsResults(results) {
+    let html = '<h6>Network Statistics:</h6>';
+    
+    if (results.statistics) {
+        const stats = results.statistics;
+        
+        html += `
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="network-stat">
+                        <div class="h4 text-primary">${formatBytes(stats.bytes_sent || 0)}</div>
+                        <small>Bytes Sent</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="network-stat">
+                        <div class="h4 text-success">${formatBytes(stats.bytes_recv || 0)}</div>
+                        <small>Bytes Received</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="network-stat">
+                        <div class="h4 text-warning">${stats.packets_sent || 0}</div>
+                        <small>Packets Sent</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="network-stat">
+                        <div class="h4 text-info">${stats.packets_recv || 0}</div>
+                        <small>Packets Received</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        if (stats.errors_in || stats.errors_out) {
+            html += `
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="network-stat">
+                            <div class="h5 text-danger">${stats.errors_in || 0}</div>
+                            <small>Input Errors</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="network-stat">
+                            <div class="h5 text-danger">${stats.errors_out || 0}</div>
+                            <small>Output Errors</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    return html;
+}
+
+function formatPingResults(results) {
+    let html = '<h6>Ping Results:</h6>';
+    
+    if (results.ping_results) {
+        const ping = results.ping_results;
+        
+        html += `
+            <div class="ping-result">
+                <div><strong>Host:</strong> ${ping.host}</div>
+                <div><strong>Packets:</strong> ${ping.transmitted} transmitted, ${ping.received} received, ${ping.packet_loss}% packet loss</div>
+                ${ping.min_time ? `<div><strong>Round-trip times:</strong> min/avg/max = ${ping.min_time}/${ping.avg_time}/${ping.max_time} ms</div>` : ''}
+                ${ping.error ? `<div class="text-danger"><strong>Error:</strong> ${ping.error}</div>` : ''}
+            </div>
+        `;
+        
+        if (ping.details && ping.details.length > 0) {
+            html += '<div class="mt-3"><h6>Individual Pings:</h6>';
+            ping.details.forEach(detail => {
+                html += `<div class="small font-monospace">${detail}</div>`;
+            });
+            html += '</div>';
+        }
+    }
+    
+    return html;
+}
+
+function formatTracerouteResults(results) {
+    let html = '<h6>Traceroute Results:</h6>';
+    
+    if (results.traceroute) {
+        const trace = results.traceroute;
+        
+        html += `<div class="mb-3"><strong>Route to ${trace.target}:</strong></div>`;
+        
+        if (trace.hops && trace.hops.length > 0) {
+            trace.hops.forEach((hop, index) => {
+                html += `
+                    <div class="traceroute-hop">
+                        <strong>${index + 1}.</strong> ${hop.address || '*'}
+                        ${hop.hostname ? ` (${hop.hostname})` : ''}
+                        ${hop.rtt ? ` - ${hop.rtt} ms` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        if (trace.error) {
+            html += `<div class="alert alert-warning">${trace.error}</div>`;
+        }
+    }
+    
+    return html;
+}
+
+function formatDNSResults(results) {
+    let html = '<h6>DNS Lookup Results:</h6>';
+    
+    if (results.dns) {
+        const dns = results.dns;
+        
+        html += `<div class="mb-3"><strong>Domain:</strong> ${dns.domain}</div>`;
+        
+        if (dns.records && dns.records.length > 0) {
+            dns.records.forEach(record => {
+                html += `
+                    <div class="dns-record">
+                        <strong>${record.type}:</strong> ${record.value}
+                        ${record.ttl ? ` (TTL: ${record.ttl})` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        if (dns.error) {
+            html += `<div class="alert alert-warning">${dns.error}</div>`;
+        }
+    }
+    
+    return html;
+}
+
+function formatDiscoveryResults(results) {
+    let html = '<h6>Network Discovery Results:</h6>';
+    
+    if (results.devices && results.devices.length > 0) {
+        html += `<div class="mb-3">Found ${results.devices.length} device(s):</div>`;
+        
+        results.devices.forEach(device => {
+            html += `
+                <div class="interface-card interface-active">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div><strong>IP:</strong> ${device.ip}</div>
+                            ${device.mac ? `<div><strong>MAC:</strong> ${device.mac}</div>` : ''}
+                            ${device.hostname ? `<div><strong>Hostname:</strong> ${device.hostname}</div>` : ''}
+                        </div>
+                        <div>
+                            ${device.vendor ? `<span class="badge bg-info">${device.vendor}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        html += '<p class="text-muted">No devices found in the specified network range.</p>';
+    }
+    
+    return html;
+}
+
+function formatPublicIPResults(results) {
+    let html = '<h6>Public IP Information:</h6>';
+    
+    if (results.public_ip) {
+        const ip = results.public_ip;
+        
+        html += `
+            <div class="interface-card interface-active">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div><strong>IP Address:</strong> ${ip.address}</div>
+                        <div><strong>ISP:</strong> ${ip.isp || 'Unknown'}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div><strong>Location:</strong> ${ip.city || 'Unknown'}, ${ip.country || 'Unknown'}</div>
+                        <div><strong>Organization:</strong> ${ip.org || 'Unknown'}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    return html;
+}
+
+function startMonitoring() {
+    if (monitoringInterval) return;
+    
+    $('#start-monitoring').hide();
+    $('#stop-monitoring').show();
+    
+    // Start monitoring network statistics
+    monitoringInterval = setInterval(updateNetworkStats, 2000);
+    
+    showNotification('Real-time monitoring started', 'success');
+}
+
+function stopMonitoring() {
+    if (monitoringInterval) {
+        clearInterval(monitoringInterval);
+        monitoringInterval = null;
+    }
+    
+    $('#start-monitoring').show();
+    $('#stop-monitoring').hide();
+    
+    showNotification('Real-time monitoring stopped', 'info');
+}
+
+function updateNetworkStats() {
+    // Simulate network statistics updates
+    const bytesSent = Math.floor(Math.random() * 1000000);
+    const bytesRecv = Math.floor(Math.random() * 1000000);
+    const packetsSent = Math.floor(Math.random() * 1000);
+    const packetsRecv = Math.floor(Math.random() * 1000);
+    
+    $('#bytes-sent').text(formatBytes(bytesSent));
+    $('#bytes-recv').text(formatBytes(bytesRecv));
+    $('#packets-sent').text(packetsSent);
+    $('#packets-recv').text(packetsRecv);
+    
+    // Update chart
+    const now = new Date();
+    chartData.push({
+        x: now,
+        sent: bytesSent / 1000,
+        recv: bytesRecv / 1000
+    });
+    
+    // Keep only last 20 data points
+    if (chartData.length > 20) {
+        chartData.shift();
+    }
+    
+    updateChart();
+}
+
+function initializeChart() {
+    const ctx = document.getElementById('networkChart').getContext('2d');
+    
+    networkChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Bytes Sent (KB)',
+                data: [],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Bytes Received (KB)',
+                data: [],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'second'
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+function updateChart() {
+    if (!networkChart) return;
+    
+    networkChart.data.datasets[0].data = chartData.map(d => ({x: d.x, y: d.sent}));
+    networkChart.data.datasets[1].data = chartData.map(d => ({x: d.x, y: d.recv}));
+    
+    networkChart.update('none');
+}
+
+function loadNetworkStatus() {
+    // Load initial network status
+    $('#public-ip').text('Loading...');
+    
+    // Simulate loading network status
+    setTimeout(() => {
+        $('#active-interfaces').text('3');
+        $('#active-connections').text('12');
+        $('#public-ip').text('203.0.113.1');
+    }, 1000);
+}
+
+function quickAnalysis(type) {
+    const quickAnalyses = {
+        'local': 'interfaces',
+        'gateway': 'ping',
+        'dns': 'dns',
+        'speed': 'statistics'
+    };
+    
+    const analysisType = quickAnalyses[type];
+    if (analysisType) {
+        $('#analysis-type').val(analysisType);
+        updateAnalysisInterface();
+        
+        if (type === 'gateway') {
+            $('#target-host').val('192.168.1.1'); // Common gateway
+        } else if (type === 'dns') {
+            $('#target-host').val('google.com');
+        }
+        
+        startAnalysis();
+    }
+}
+
+function pingHost(host) {
+    $('#analysis-type').val('ping');
+    $('#target-host').val(host);
+    updateAnalysisInterface();
+    startAnalysis();
+}
+
+function dnsLookup(domain) {
+    $('#analysis-type').val('dns');
+    $('#target-host').val(domain);
+    updateAnalysisInterface();
+    startAnalysis();
+}
+
+function clearResults() {
+    $('#results-section').hide();
+    analysisResults = {};
+    showNotification('Results cleared', 'info');
+}
+
+function refreshData() {
+    loadNetworkStatus();
+    showNotification('Network status refreshed', 'info');
+}
+
+function exportResults(format) {
+    if (!analysisResults || Object.keys(analysisResults).length === 0) {
+        showNotification('No results to export', 'warning');
+        return;
+    }
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const filename = `network_analysis_${timestamp}.${format}`;
+    
+    let content, mimeType;
+    
+    if (format === 'json') {
+        content = JSON.stringify(analysisResults, null, 2);
+        mimeType = 'application/json';
+    } else if (format === 'csv') {
+        // Convert to CSV (simplified)
+        content = Object.entries(analysisResults)
+            .map(([key, value]) => `"${key}","${JSON.stringify(value)}"`)
+            .join('\\n');
+        mimeType = 'text/csv';
+    }
+    
+    // Create download
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification(`Results exported as ${filename}`, 'success');
+}
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    $('.alert-notification').remove();
+    
+    const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show alert-notification" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('.container-fluid').prepend(notification);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+{% endblock %}

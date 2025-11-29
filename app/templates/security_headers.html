@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Educational Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <div class="alert alert-info border-0 shadow-sm">
+                <h5><i class="fas fa-info-circle me-2"></i>What are Security Headers?</h5>
+                <p class="mb-2"><strong>Security headers</strong> are instructions that websites send to your browser to enable additional security protections. Think of them as "security rules" that help protect you from hackers and malicious websites.</p>
+                <p class="mb-0"><strong>Why it matters:</strong> Proper security headers can prevent common attacks like data theft, clickjacking, and malicious code injection that could compromise your personal information.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-check me-2"></i>How This Tool Works</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success">🔍 What We Analyze:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Content Security Policy (CSP)</li>
+                                <li><i class="fas fa-check text-success me-2"></i>HTTP Strict Transport Security</li>
+                                <li><i class="fas fa-check text-success me-2"></i>X-Frame-Options (clickjacking protection)</li>
+                                <li><i class="fas fa-check text-success me-2"></i>X-Content-Type-Options</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Referrer Policy and more</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success">📊 What You Learn:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-star text-warning me-2"></i>Overall security score (0-100)</li>
+                                <li><i class="fas fa-shield-alt text-warning me-2"></i>Which protections are active</li>
+                                <li><i class="fas fa-exclamation-triangle text-warning me-2"></i>Missing security measures</li>
+                                <li><i class="fas fa-tools text-warning me-2"></i>How to improve security</li>
+                                <li><i class="fas fa-graduation-cap text-warning me-2"></i>Educational explanations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-success">🎯 Common Security Headers Explained:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small>
+                                        <strong>🛡️ HSTS:</strong> Forces secure HTTPS connections<br>
+                                        <strong>🚫 X-Frame-Options:</strong> Prevents clickjacking attacks<br>
+                                        <strong>🔒 CSP:</strong> Blocks malicious scripts and content
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small>
+                                        <strong>🎭 X-Content-Type:</strong> Prevents MIME type attacks<br>
+                                        <strong>📊 Referrer-Policy:</strong> Controls information sharing<br>
+                                        <strong>🔐 Permissions-Policy:</strong> Manages browser features
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-light mt-3 mb-0">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                        <strong>Demo Tip:</strong> Compare major websites like "https://github.com" (typically well-secured) vs smaller websites to see the difference in security implementations.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient-success text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-shield-check me-2"></i>Security Headers Checker
+                    </h3>
+                    <p class="mb-0">Analyze HTTP security headers and web application security posture</p>
+                </div>
+                
+                <div class="card-body">
+                    <form id="security-headers-form">
+                        <div class="alert alert-warning border-0 mb-4">
+                            <h6 class="mb-2"><i class="fas fa-graduation-cap me-2"></i>Quick Start Guide:</h6>
+                            <p class="mb-2"><strong>Step 1:</strong> Enter any complete website URL below (must include https:// or http://)</p>
+                            <p class="mb-2"><strong>Step 2:</strong> Click "Check Security Headers" to analyze the site's security</p>
+                            <p class="mb-0"><strong>Step 3:</strong> Review your security score and learn about each protection measure</p>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label for="target-url" class="form-label">Target URL</label>
+                                <input type="url" class="form-control form-control-lg" id="target-url" 
+                                       placeholder="https://example.com" required>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-primary me-1"></i>
+                                    Enter the complete URL starting with https:// or http://. 
+                                    <strong>Examples:</strong> https://github.com, https://stackoverflow.com, https://google.com
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                                        <strong>Presentation Tip:</strong> Try comparing a major tech company (like GitHub) with a smaller website to demonstrate security differences.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-search me-2"></i>Check Security Headers
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="mt-4" style="display: none;">
+                <div class="card shadow">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">Security Headers Analysis</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="analysis-results"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center mt-4" style="display: none;">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Checking headers...</span>
+                </div>
+                <p class="mt-2">Analyzing security headers...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('security-headers-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const url = document.getElementById('target-url').value;
+    
+    if (!url.trim()) {
+        alert('Please enter a URL to analyze');
+        return;
+    }
+    
+    // Show loading spinner
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results-section').style.display = 'none';
+    
+    // Make the API request
+    fetch('/check-security-headers', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            url: url
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('loading').style.display = 'none';
+        
+        if (data.success) {
+            displayResults(data.results);
+        } else {
+            displayError(data.error || 'An error occurred during analysis');
+        }
+    })
+    .catch(error => {
+        document.getElementById('loading').style.display = 'none';
+        displayError('Network error: ' + error.message);
+    });
+});
+
+function displayResults(results) {
+    const resultsDiv = document.getElementById('analysis-results');
+    
+    let html = '';
+    
+    // Educational Header
+    html += `
+        <div class="alert alert-success border-0 mb-4">
+            <h5><i class="fas fa-graduation-cap me-2"></i>Understanding Your Security Headers Report</h5>
+            <p class="mb-0">This analysis checks if the website has implemented important security protections in their HTTP headers. Think of these as "security instructions" the website gives to your browser to keep you safe.</p>
+        </div>
+    `;
+    
+    // Security Score
+    if (results.security_score !== undefined) {
+        const score = results.security_score;
+        const scoreColor = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'danger';
+        const scoreIcon = score >= 80 ? 'fa-shield-check' : score >= 60 ? 'fa-shield-alt' : 'fa-shield-virus';
+        const scoreDescription = score >= 90 ? 'Excellent Security!' : 
+                                score >= 80 ? 'Good Security' : 
+                                score >= 60 ? 'Average Security' : 
+                                score >= 40 ? 'Poor Security' : 'Very Poor Security';
+        const scoreExplanation = score >= 80 ? 
+            'This website has implemented most important security measures to protect users.' :
+            score >= 60 ? 
+            'This website has basic security but is missing some important protections.' :
+            'This website lacks many important security measures and may be vulnerable to attacks.';
+        
+        html += `
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-${scoreColor} shadow">
+                        <div class="card-header bg-${scoreColor} text-white">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h4 class="mb-0">Overall Security Score</h4>
+                                    <small>Based on presence and configuration of security headers</small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <i class="fas ${scoreIcon} fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <h1 class="display-4 text-${scoreColor} mb-3">${score}/100</h1>
+                            <h5 class="text-${scoreColor} mb-3">${scoreDescription}</h5>
+                            <div class="progress mb-3" style="height: 25px;">
+                                <div class="progress-bar bg-${scoreColor}" style="width: ${score}%" role="progressbar">
+                                    <strong>${score}%</strong>
+                                </div>
+                            </div>
+                            <p class="text-muted mb-0">${scoreExplanation}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Headers Analysis with detailed explanations
+    if (results.headers_analysis) {
+        html += `
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Individual Security Header Analysis</h5>
+                            <small>Detailed breakdown of each security protection and what it does</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>How to read these results:</strong> Each header below represents a specific security feature. 
+                                <span class="badge bg-success me-1">Secure</span> means it's properly configured,
+                                <span class="badge bg-warning me-1">Present but Insecure</span> means it exists but needs improvement, and
+                                <span class="badge bg-danger me-1">Missing</span> means this protection is not active.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Enhanced header explanations
+        const headerExplanations = {
+            'Strict-Transport-Security': {
+                purpose: 'Forces all connections to use HTTPS (encrypted) instead of HTTP (unencrypted)',
+                impact: 'Prevents hackers from intercepting your data by forcing secure connections',
+                analogy: 'Like insisting on speaking in code rather than plain language in public'
+            },
+            'Content-Security-Policy': {
+                purpose: 'Controls what resources (scripts, images, etc.) can load on the webpage',
+                impact: 'Blocks malicious scripts and prevents code injection attacks',
+                analogy: 'Like a security guard checking IDs before letting anyone into a building'
+            },
+            'X-Frame-Options': {
+                purpose: 'Prevents the website from being embedded in malicious frames',
+                impact: 'Stops clickjacking attacks where hackers trick you into clicking hidden buttons',
+                analogy: 'Like refusing to let someone put your store window inside their fake storefront'
+            },
+            'X-Content-Type-Options': {
+                purpose: 'Prevents browsers from guessing file types incorrectly',
+                impact: 'Stops attacks where malicious files pretend to be safe file types',
+                analogy: 'Like checking ID to verify someone is who they claim to be'
+            },
+            'Referrer-Policy': {
+                purpose: 'Controls how much information is shared when you click links',
+                impact: 'Protects your privacy by limiting what other websites learn about your browsing',
+                analogy: 'Like choosing how much personal info to share when making introductions'
+            },
+            'Permissions-Policy': {
+                purpose: 'Controls what browser features (camera, microphone, etc.) the website can access',
+                impact: 'Prevents websites from accessing sensitive device features without permission',
+                analogy: 'Like setting boundaries on what guests can do in your house'
+            }
+        };
+        
+        for (const [headerName, analysis] of Object.entries(results.headers_analysis)) {
+            const statusColor = analysis.present ? (analysis.secure ? 'success' : 'warning') : 'danger';
+            const statusIcon = analysis.present ? (analysis.secure ? 'fa-check-circle' : 'fa-exclamation-triangle') : 'fa-times-circle';
+            const statusText = analysis.present ? (analysis.secure ? 'Properly Configured' : 'Present but Needs Improvement') : 'Missing Protection';
+            const explanation = headerExplanations[headerName] || { purpose: 'Security header configuration', impact: 'Affects website security', analogy: 'Security measure' };
+            
+            html += `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-${statusColor} shadow-sm">
+                            <div class="card-header bg-${statusColor} bg-opacity-10 border-${statusColor}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-1">
+                                            <i class="fas fa-shield me-2"></i>
+                                            <code class="bg-light p-1 rounded">${headerName}</code>
+                                        </h6>
+                                        <small class="text-muted">${explanation.purpose}</small>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <span class="badge bg-${statusColor} fs-6">
+                                            <i class="fas ${statusIcon} me-1"></i>${statusText}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        ${analysis.value ? `
+                                            <div class="mb-3">
+                                                <strong><i class="fas fa-cog me-1"></i>Current Configuration:</strong>
+                                                <div class="bg-light p-2 rounded mt-1">
+                                                    <code class="text-dark small">${analysis.value}</code>
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <div class="mb-3">
+                                            <strong><i class="fas fa-shield-alt me-1"></i>Security Impact:</strong>
+                                            <p class="text-muted mb-0 mt-1">${explanation.impact}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <strong><i class="fas fa-lightbulb me-1"></i>Simple Explanation:</strong>
+                                            <p class="text-muted mb-0 mt-1">${explanation.analogy}</p>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <strong><i class="fas fa-info-circle me-1"></i>Technical Details:</strong>
+                                            <p class="text-muted mb-0 mt-1">${analysis.description}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                ${analysis.recommendation ? `
+                                    <div class="alert alert-info mb-0 mt-3">
+                                        <i class="fas fa-tools me-2"></i>
+                                        <strong>How to Improve:</strong> ${analysis.recommendation}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Enhanced Summary and Recommendations
+    if (results.summary || results.recommendations) {
+        html += `
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card border-info shadow">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Executive Summary for Presentation</h5>
+                            <small>Key findings and recommendations you can share</small>
+                        </div>
+                        <div class="card-body">
+        `;
+        
+        if (results.summary) {
+            const total = (results.summary.secure_headers || 0) + (results.summary.insecure_headers || 0) + (results.summary.missing_headers || 0);
+            const securePercentage = total > 0 ? Math.round((results.summary.secure_headers || 0) / total * 100) : 0;
+            
+            html += `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-info mb-3"><i class="fas fa-chart-pie me-2"></i>Security Headers Breakdown</h6>
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="card border-success h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-shield-check text-success fa-2x mb-2"></i>
+                                        <h3 class="text-success mb-1">${results.summary.secure_headers || 0}</h3>
+                                        <h6 class="text-muted">Properly Configured</h6>
+                                        <small class="text-muted">Security measures working correctly</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-warning h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-exclamation-triangle text-warning fa-2x mb-2"></i>
+                                        <h3 class="text-warning mb-1">${results.summary.insecure_headers || 0}</h3>
+                                        <h6 class="text-muted">Need Improvement</h6>
+                                        <small class="text-muted">Present but not optimally configured</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border-danger h-100">
+                                    <div class="card-body">
+                                        <i class="fas fa-times-circle text-danger fa-2x mb-2"></i>
+                                        <h3 class="text-danger mb-1">${results.summary.missing_headers || 0}</h3>
+                                        <h6 class="text-muted">Missing Protection</h6>
+                                        <small class="text-muted">Important security measures not found</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-light mt-4">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6><i class="fas fa-percentage me-2"></i>Security Implementation Rate:</h6>
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" style="width: ${securePercentage}%">
+                                            <strong>${securePercentage}% Properly Secured</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <h6>Overall Rating:</h6>
+                                    <span class="badge fs-6 ${
+                                        securePercentage >= 80 ? 'bg-success' : 
+                                        securePercentage >= 60 ? 'bg-warning' : 'bg-danger'
+                                    }">
+                                        ${securePercentage >= 80 ? 'Excellent' : securePercentage >= 60 ? 'Good' : 'Needs Work'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (results.recommendations && results.recommendations.length > 0) {
+            html += `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-warning mb-3"><i class="fas fa-lightbulb me-2"></i>Key Recommendations for Improvement</h6>
+                        <div class="card border-warning">
+                            <div class="card-body">
+                                <ol class="mb-0">
+                                    ${results.recommendations.map(rec => `
+                                        <li class="mb-2">
+                                            <strong>Priority Action:</strong> ${rec}
+                                        </li>
+                                    `).join('')}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Add presentation talking points
+        html += `
+            <div class="alert alert-primary mt-4 mb-0">
+                <h6><i class="fas fa-presentation me-2"></i>Key Points for Your Presentation:</h6>
+                <ul class="mb-0">
+                    <li><strong>What We Found:</strong> This website implements ${results.summary?.secure_headers || 0} out of ${(results.summary?.secure_headers || 0) + (results.summary?.missing_headers || 0)} critical security headers properly.</li>
+                    <li><strong>User Impact:</strong> ${securePercentage >= 80 ? 
+                        'Users are well-protected against common web attacks like clickjacking and data injection.' : 
+                        securePercentage >= 60 ? 
+                        'Users have basic protection but the website could implement additional security measures.' :
+                        'Users may be vulnerable to several types of web-based attacks due to missing security protections.'}</li>
+                    <li><strong>Business Risk:</strong> ${securePercentage >= 80 ? 
+                        'Low risk - the website follows modern security best practices.' : 
+                        'Moderate to high risk - missing security headers could expose users and damage reputation if exploited.'}</li>
+                    <li><strong>Recommendation:</strong> ${results.recommendations?.length ? 
+                        `Focus on implementing the ${results.recommendations.length} priority recommendations listed above.` : 
+                        'Maintain current security standards and monitor for new threats.'}</li>
+                </ul>
+            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    resultsDiv.innerHTML = html;
+    document.getElementById('results-section').style.display = 'block';
+}
+
+function displayError(error) {
+    const resultsDiv = document.getElementById('analysis-results');
+    resultsDiv.innerHTML = `
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Error:</strong> ${error}
+        </div>
+    `;
+    document.getElementById('results-section').style.display = 'block';
+}
+</script>
+
+<style>
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.border {
+    border-color: #dee2e6 !important;
+}
+
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %}

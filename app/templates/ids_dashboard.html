@@ -1,0 +1,1052 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="ids-dashboard-header">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h1 class="display-5 fw-bold">
+                <i class="fas fa-shield-alt"></i> Intrusion Detection System
+            </h1>
+            <p class="lead text-muted">Real-time anomaly-based intrusion detection and monitoring</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- System Status -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-heartbeat"></i> System Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>IDS Status</span>
+                    <span class="badge bg-success" id="ids-status">Active</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Monitoring</span>
+                    <span class="badge bg-secondary" id="monitoring-status">Stopped</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Training Status</span>
+                    <span class="badge bg-info" id="training-status">Ready</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Last Update</span>
+                    <span class="small text-muted" id="last-update">Never</span>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <button class="btn btn-success btn-sm" id="start-monitoring" onclick="startMonitoring()">
+                        <i class="fas fa-play"></i> Start Monitoring
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="stop-monitoring" onclick="stopMonitoring()" style="display: none;">
+                        <i class="fas fa-stop"></i> Stop Monitoring
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h2 text-primary" id="total-packets">0</div>
+                        <div class="small text-muted">Packets Analyzed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h2 text-warning" id="anomalies-detected">0</div>
+                        <div class="small text-muted">Anomalies Detected</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h2 text-danger" id="alerts-count">0</div>
+                        <div class="small text-muted">Security Alerts</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <div class="h2 text-success" id="detection-rate">0%</div>
+                        <div class="small text-muted">Detection Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Control Panel -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-cog"></i> Control Panel
+                </h6>
+            </div>
+            <div class="card-body">
+                <!-- Training Section -->
+                <div class="mb-4">
+                    <h6>Training</h6>
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="trainIDS('sample')">
+                            <i class="fas fa-database"></i> Train on Sample Data
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="trainIDS('upload')">
+                            <i class="fas fa-upload"></i> Upload Training Data
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Analysis Section -->
+                <div class="mb-4">
+                    <h6>Analysis</h6>
+                    <div class="input-group mb-2">
+                        <input type="file" class="form-control" id="data-file" accept=".csv,.json,.pcap">
+                        <button class="btn btn-outline-primary" onclick="analyzeData()">
+                            <i class="fas fa-search"></i> Analyze
+                        </button>
+                    </div>
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-warning" onclick="simulateAttack('dos')">
+                            <i class="fas fa-exclamation-triangle"></i> Simulate DoS
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="simulateAttack('intrusion')">
+                            <i class="fas fa-bug"></i> Simulate Intrusion
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Configuration Section -->
+                <div class="mb-4">
+                    <h6>Configuration</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label small">Detection Threshold</label>
+                            <input type="range" class="form-range" id="detection-threshold" min="0" max="100" value="70">
+                            <div class="small text-muted">Current: <span id="threshold-value">70</span>%</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Alert Threshold</label>
+                            <input type="range" class="form-range" id="alert-threshold" min="0" max="100" value="80">
+                            <div class="small text-muted">Current: <span id="alert-value">80</span>%</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm mt-2" onclick="updateConfiguration()">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div>
+                    <h6>Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-info btn-sm" onclick="exportData()">
+                            <i class="fas fa-download"></i> Export Detection Data
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="clearAlerts()">
+                            <i class="fas fa-trash"></i> Clear All Alerts
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="getDetectorInfo()">
+                            <i class="fas fa-info-circle"></i> Detector Information
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-time Monitoring -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line"></i> Real-time Activity
+                </h6>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="auto-scroll">
+                    <label class="form-check-label small" for="auto-scroll">Auto-scroll</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="activity-chart-container" style="height: 300px;">
+                    <canvas id="activityChart"></canvas>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="row small">
+                        <div class="col-4 text-center">
+                            <div class="h6 mb-1" id="current-throughput">0</div>
+                            <div class="text-muted">Packets/sec</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="h6 mb-1" id="anomaly-rate">0%</div>
+                            <div class="text-muted">Anomaly Rate</div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="h6 mb-1" id="avg-confidence">0%</div>
+                            <div class="text-muted">Avg Confidence</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Security Alerts
+                </h6>
+                <div>
+                    <span class="badge bg-danger" id="high-severity-count">0</span>
+                    <span class="badge bg-warning" id="medium-severity-count">0</span>
+                    <span class="badge bg-info" id="low-severity-count">0</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="alerts-container" style="max-height: 400px; overflow-y: auto;">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                        <div>No security alerts. System is secure.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Training Progress Modal -->
+<div class="modal fade" id="trainingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IDS Training Progress</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Training Progress</span>
+                        <span id="training-percent">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="training-progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="small">
+                    <div id="training-status-text">Initializing training...</div>
+                    <div class="mt-2">
+                        <div>Samples processed: <span id="samples-processed">0</span></div>
+                        <div>Current phase: <span id="current-phase">Initialization</span></div>
+                        <div>Estimated time: <span id="estimated-time">Calculating...</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close-training">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Details Modal -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Alert Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alert-details">
+                    <!-- Alert details will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="acknowledgeAlert()">
+                    <i class="fas fa-check"></i> Acknowledge
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.ids-dashboard-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    margin-top: 70px;
+}
+
+.alert-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.alert-item:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.alert-high {
+    border-left: 4px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.alert-medium {
+    border-left: 4px solid #ffc107;
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.alert-low {
+    border-left: 4px solid #17a2b8;
+    background-color: rgba(23, 162, 184, 0.05);
+}
+
+.alert-acknowledged {
+    opacity: 0.6;
+    background-color: rgba(108, 117, 125, 0.05);
+}
+
+.monitoring-indicator {
+    position: relative;
+}
+
+.monitoring-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -15px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.status-active { background-color: #28a745; }
+.status-inactive { background-color: #dc3545; }
+.status-training { background-color: #ffc107; }
+.status-ready { background-color: #17a2b8; }
+
+.detection-metrics {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+.confidence-score {
+    font-weight: bold;
+}
+
+.confidence-high { color: #28a745; }
+.confidence-medium { color: #ffc107; }
+.confidence-low { color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let monitoringActive = false;
+let activityChart = null;
+let alertsData = [];
+let monitoringInterval = null;
+let currentAlertId = null;
+
+$(document).ready(function() {
+    initializeIDS();
+    setupRangeSliders();
+    initializeActivityChart();
+    loadIDSStatus();
+});
+
+function initializeIDS() {
+    // Load initial IDS status
+    loadIDSStatus();
+    
+    // Set up periodic status updates
+    setInterval(updateDashboard, 5000);
+}
+
+function setupRangeSliders() {
+    $('#detection-threshold').on('input', function() {
+        $('#threshold-value').text($(this).val());
+    });
+    
+    $('#alert-threshold').on('input', function() {
+        $('#alert-value').text($(this).val());
+    });
+}
+
+function loadIDSStatus() {
+    $.ajax({
+        url: '/ids/status',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                updateStatusDisplay(response.status);
+            }
+        },
+        error: function() {
+            showNotification('Failed to load IDS status', 'warning');
+        }
+    });
+}
+
+function updateStatusDisplay(status) {
+    // Update status badges
+    $('#ids-status').removeClass('bg-success bg-danger bg-warning')
+        .addClass(status.system_active ? 'bg-success' : 'bg-danger')
+        .text(status.system_active ? 'Active' : 'Inactive');
+    
+    $('#monitoring-status').removeClass('bg-success bg-secondary')
+        .addClass(status.monitoring_active ? 'bg-success monitoring-indicator' : 'bg-secondary')
+        .text(status.monitoring_active ? 'Running' : 'Stopped');
+    
+    $('#training-status').removeClass('bg-info bg-warning bg-success')
+        .addClass('bg-' + (status.training_status === 'training' ? 'warning' : 
+                           status.training_status === 'ready' ? 'info' : 'success'))
+        .text(status.training_status.charAt(0).toUpperCase() + status.training_status.slice(1));
+    
+    // Update statistics
+    $('#total-packets').text(status.packets_analyzed || 0);
+    $('#anomalies-detected').text(status.anomalies_detected || 0);
+    $('#alerts-count').text(status.alerts_count || 0);
+    $('#detection-rate').text((status.detection_rate || 0) + '%');
+    
+    // Update last update time
+    if (status.last_update) {
+        $('#last-update').text(new Date(status.last_update).toLocaleTimeString());
+    }
+    
+    // Update monitoring button state
+    monitoringActive = status.monitoring_active;
+    if (monitoringActive) {
+        $('#start-monitoring').hide();
+        $('#stop-monitoring').show();
+        if (!monitoringInterval) {
+            startRealtimeUpdates();
+        }
+    } else {
+        $('#start-monitoring').show();
+        $('#stop-monitoring').hide();
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
+        }
+    }
+}
+
+function startMonitoring() {
+    $.ajax({
+        url: '/ids/start-monitoring',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                showNotification('IDS monitoring started successfully', 'success');
+                monitoringActive = true;
+                $('#start-monitoring').hide();
+                $('#stop-monitoring').show();
+                startRealtimeUpdates();
+            } else {
+                showNotification('Failed to start monitoring: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error starting IDS monitoring', 'danger');
+        }
+    });
+}
+
+function stopMonitoring() {
+    $.ajax({
+        url: '/ids/stop-monitoring',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                showNotification('IDS monitoring stopped', 'info');
+                monitoringActive = false;
+                $('#start-monitoring').show();
+                $('#stop-monitoring').hide();
+                if (monitoringInterval) {
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                }
+            } else {
+                showNotification('Failed to stop monitoring: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error stopping IDS monitoring', 'danger');
+        }
+    });
+}
+
+function startRealtimeUpdates() {
+    if (monitoringInterval) return;
+    
+    monitoringInterval = setInterval(() => {
+        updateDashboard();
+        updateActivityChart();
+        loadAlerts();
+    }, 2000);
+}
+
+function updateDashboard() {
+    // Update real-time metrics
+    if (monitoringActive) {
+        // Simulate real-time data updates
+        const throughput = Math.floor(Math.random() * 1000) + 100;
+        const anomalyRate = (Math.random() * 5).toFixed(1);
+        const avgConfidence = (85 + Math.random() * 15).toFixed(0);
+        
+        $('#current-throughput').text(throughput);
+        $('#anomaly-rate').text(anomalyRate + '%');
+        $('#avg-confidence').text(avgConfidence + '%');
+    }
+}
+
+function trainIDS(type) {
+    let requestData = { training_type: type };
+    
+    if (type === 'upload') {
+        const fileInput = $('#data-file')[0];
+        if (!fileInput.files[0]) {
+            showNotification('Please select a training data file', 'warning');
+            return;
+        }
+        // In a real implementation, you'd handle file upload here
+        requestData.filename = fileInput.files[0].name;
+    }
+    
+    $('#trainingModal').modal('show');
+    $('#close-training').prop('disabled', true);
+    
+    simulateTraining();
+    
+    $.ajax({
+        url: '/ids/train',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                showNotification('IDS training completed successfully', 'success');
+                $('#training-status').removeClass().addClass('badge bg-success').text('Trained');
+            } else {
+                showNotification('Training failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error during IDS training', 'danger');
+        },
+        complete: function() {
+            $('#close-training').prop('disabled', false);
+        }
+    });
+}
+
+function simulateTraining() {
+    let progress = 0;
+    const phases = ['Initialization', 'Data Loading', 'Feature Extraction', 'Model Training', 'Validation'];
+    let currentPhase = 0;
+    
+    const trainingInterval = setInterval(() => {
+        progress += Math.random() * 10;
+        
+        if (progress > 100) {
+            progress = 100;
+            clearInterval(trainingInterval);
+        }
+        
+        // Update phase based on progress
+        const phaseIndex = Math.floor(progress / 20);
+        if (phaseIndex !== currentPhase && phaseIndex < phases.length) {
+            currentPhase = phaseIndex;
+            $('#current-phase').text(phases[currentPhase]);
+        }
+        
+        $('#training-progress-bar').css('width', progress + '%');
+        $('#training-percent').text(Math.floor(progress) + '%');
+        $('#samples-processed').text(Math.floor(progress * 50));
+        
+        const remainingTime = Math.ceil((100 - progress) / 10);
+        $('#estimated-time').text(remainingTime + ' seconds');
+        
+        if (progress >= 100) {
+            $('#training-status-text').text('Training completed successfully!');
+            $('#estimated-time').text('Complete');
+        }
+    }, 500);
+}
+
+function analyzeData() {
+    const fileInput = $('#data-file')[0];
+    if (!fileInput.files[0]) {
+        showNotification('Please select a data file to analyze', 'warning');
+        return;
+    }
+    
+    const requestData = {
+        filename: fileInput.files[0].name,
+        // In a real implementation, you'd handle file upload
+    };
+    
+    showNotification('Analyzing data...', 'info');
+    
+    $.ajax({
+        url: '/ids/analyze-data',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                const result = response.result;
+                showNotification(`Analysis complete: ${result.is_anomaly ? 'Anomaly detected' : 'Normal traffic'} (Confidence: ${result.confidence}%)`, 
+                               result.is_anomaly ? 'warning' : 'success');
+            } else {
+                showNotification('Analysis failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error during data analysis', 'danger');
+        }
+    });
+}
+
+function simulateAttack(attackType) {
+    const requestData = {
+        attack_type: attackType,
+        duration: 30, // 30 seconds
+        intensity: 'medium'
+    };
+    
+    showNotification(`Simulating ${attackType} attack for testing...`, 'warning');
+    
+    $.ajax({
+        url: '/ids/simulate-attack',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(requestData),
+        success: function(response) {
+            if (response.success) {
+                showNotification(`Attack simulation completed. Generated ${response.packets_sent} test packets.`, 'info');
+                // Refresh alerts after simulation
+                setTimeout(loadAlerts, 2000);
+            } else {
+                showNotification('Attack simulation failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error during attack simulation', 'danger');
+        }
+    });
+}
+
+function updateConfiguration() {
+    const config = {
+        detection_threshold: parseInt($('#detection-threshold').val()) / 100,
+        alert_threshold: parseInt($('#alert-threshold').val()) / 100
+    };
+    
+    $.ajax({
+        url: '/ids/configure',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(config),
+        success: function(response) {
+            if (response.success) {
+                showNotification('Configuration updated successfully', 'success');
+            } else {
+                showNotification('Configuration update failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error updating configuration', 'danger');
+        }
+    });
+}
+
+function loadAlerts() {
+    $.ajax({
+        url: '/ids/get-alerts',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                alertsData = response.alerts || [];
+                displayAlerts(alertsData);
+                updateAlertCounts(alertsData);
+            }
+        },
+        error: function() {
+            // Silently fail for real-time updates
+        }
+    });
+}
+
+function displayAlerts(alerts) {
+    const container = $('#alerts-container');
+    
+    if (alerts.length === 0) {
+        container.html(`
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                <div>No security alerts. System is secure.</div>
+            </div>
+        `);
+        return;
+    }
+    
+    let alertsHtml = '';
+    alerts.slice(0, 50).forEach(alert => { // Show only last 50 alerts
+        const severity = alert.severity || 'low';
+        const timestamp = new Date(alert.timestamp).toLocaleString();
+        const acknowledgedClass = alert.acknowledged ? 'alert-acknowledged' : '';
+        
+        alertsHtml += `
+            <div class="alert-item alert-${severity} ${acknowledgedClass}" onclick="showAlertDetails('${alert.id}')">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="status-indicator status-${severity === 'high' ? 'inactive' : 'active'}"></span>
+                            <h6 class="mb-0 me-2">${alert.alert_type || 'Security Alert'}</h6>
+                            <span class="badge bg-${getSeverityColor(severity)}">${severity.toUpperCase()}</span>
+                            ${alert.acknowledged ? '<span class="badge bg-secondary ms-1">Acknowledged</span>' : ''}
+                        </div>
+                        <p class="mb-1">${alert.description || 'Anomalous network activity detected'}</p>
+                        <div class="small text-muted">
+                            <span class="me-3">Time: ${timestamp}</span>
+                            <span class="me-3">Confidence: ${alert.confidence}%</span>
+                            <span>Source: ${alert.source_ip || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.html(alertsHtml);
+    
+    // Auto-scroll if enabled
+    if ($('#auto-scroll').is(':checked')) {
+        container.scrollTop(0);
+    }
+}
+
+function updateAlertCounts(alerts) {
+    const counts = {
+        high: alerts.filter(a => a.severity === 'high' && !a.acknowledged).length,
+        medium: alerts.filter(a => a.severity === 'medium' && !a.acknowledged).length,
+        low: alerts.filter(a => a.severity === 'low' && !a.acknowledged).length
+    };
+    
+    $('#high-severity-count').text(counts.high);
+    $('#medium-severity-count').text(counts.medium);
+    $('#low-severity-count').text(counts.low);
+}
+
+function showAlertDetails(alertId) {
+    currentAlertId = alertId;
+    const alert = alertsData.find(a => a.id === alertId);
+    
+    if (!alert) return;
+    
+    const detailsHtml = `
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Alert Type:</strong> ${alert.alert_type || 'Unknown'}<br>
+                <strong>Severity:</strong> <span class="badge bg-${getSeverityColor(alert.severity)}">${alert.severity.toUpperCase()}</span><br>
+                <strong>Confidence:</strong> <span class="confidence-score confidence-${getConfidenceLevel(alert.confidence)}">${alert.confidence}%</span><br>
+                <strong>Timestamp:</strong> ${new Date(alert.timestamp).toLocaleString()}
+            </div>
+            <div class="col-md-6">
+                <strong>Source IP:</strong> ${alert.source_ip || 'Unknown'}<br>
+                <strong>Destination IP:</strong> ${alert.dest_ip || 'Unknown'}<br>
+                <strong>Protocol:</strong> ${alert.protocol || 'Unknown'}<br>
+                <strong>Port:</strong> ${alert.port || 'Unknown'}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <strong>Description:</strong>
+            <p class="mt-1">${alert.description || 'No description available'}</p>
+        </div>
+        
+        ${alert.details ? `
+            <div class="mb-3">
+                <strong>Technical Details:</strong>
+                <div class="detection-metrics mt-1 p-2 bg-light rounded">
+                    ${Object.entries(alert.details).map(([key, value]) => 
+                        `<div>${key}: ${value}</div>`
+                    ).join('')}
+                </div>
+            </div>
+        ` : ''}
+        
+        ${alert.recommendations ? `
+            <div class="mb-3">
+                <strong>Recommended Actions:</strong>
+                <ul class="mt-1">
+                    ${alert.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            </div>
+        ` : ''}
+    `;
+    
+    $('#alert-details').html(detailsHtml);
+    $('#alertModal').modal('show');
+}
+
+function acknowledgeAlert() {
+    if (!currentAlertId) return;
+    
+    const alert = alertsData.find(a => a.id === currentAlertId);
+    if (alert) {
+        alert.acknowledged = true;
+        showNotification('Alert acknowledged', 'success');
+        $('#alertModal').modal('hide');
+        displayAlerts(alertsData);
+        updateAlertCounts(alertsData);
+    }
+}
+
+function clearAlerts() {
+    $.ajax({
+        url: '/ids/clear-alerts',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                alertsData = [];
+                displayAlerts([]);
+                updateAlertCounts([]);
+                showNotification('All alerts cleared', 'info');
+            } else {
+                showNotification('Failed to clear alerts: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error clearing alerts', 'danger');
+        }
+    });
+}
+
+function exportData() {
+    $.ajax({
+        url: '/ids/export-data',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                // Create download link for exported data
+                const dataStr = JSON.stringify(response.data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ids_data_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showNotification('Detection data exported successfully', 'success');
+            } else {
+                showNotification('Export failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error exporting data', 'danger');
+        }
+    });
+}
+
+function getDetectorInfo() {
+    $.ajax({
+        url: '/ids/detector-info',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                const info = response.info;
+                let infoText = 'IDS Detector Information:\\n\\n';
+                
+                Object.entries(info).forEach(([key, value]) => {
+                    infoText += `${key}: ${JSON.stringify(value, null, 2)}\\n\\n`;
+                });
+                
+                alert(infoText);
+            } else {
+                showNotification('Failed to get detector info: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            showNotification('Error getting detector information', 'danger');
+        }
+    });
+}
+
+function initializeActivityChart() {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    
+    activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Normal Traffic',
+                data: [],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Anomalies',
+                data: [],
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Packets per Second'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+function updateActivityChart() {
+    if (!activityChart || !monitoringActive) return;
+    
+    const now = new Date().toLocaleTimeString();
+    const normalTraffic = Math.floor(Math.random() * 800) + 200;
+    const anomalies = Math.floor(Math.random() * 50);
+    
+    // Add new data point
+    activityChart.data.labels.push(now);
+    activityChart.data.datasets[0].data.push(normalTraffic);
+    activityChart.data.datasets[1].data.push(anomalies);
+    
+    // Keep only last 20 data points
+    if (activityChart.data.labels.length > 20) {
+        activityChart.data.labels.shift();
+        activityChart.data.datasets[0].data.shift();
+        activityChart.data.datasets[1].data.shift();
+    }
+    
+    activityChart.update('none');
+}
+
+function getSeverityColor(severity) {
+    const colors = {
+        'high': 'danger',
+        'medium': 'warning',
+        'low': 'info'
+    };
+    return colors[severity] || 'secondary';
+}
+
+function getConfidenceLevel(confidence) {
+    if (confidence >= 80) return 'high';
+    if (confidence >= 60) return 'medium';
+    return 'low';
+}
+
+function showNotification(message, type = 'info') {
+    // Remove any existing notifications
+    $('.alert-notification').remove();
+    
+    const alertClass = 'alert-' + (type === 'error' ? 'danger' : type);
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show alert-notification" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    
+    $('.container-fluid').prepend(notification);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.alert('close');
+    }, 5000);
+}
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
