@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, jsonify
 from security_modules.breach_checker import BreachChecker
-from security_modules.network_analyzer import NetworkAnalyzer
 from security_modules.system_info import SystemInfoTool
-from security_modules.security_headers_checker import SecurityHeadersChecker
 from security_modules.qr_security_scanner import QRCodeSecurityScanner
+from security_modules.url_safety_checker import URLSafetyChecker
+from security_modules.network_info import NetworkInfoTool
 
 security_bp = Blueprint('security', __name__)
 
@@ -24,14 +24,14 @@ def analyze_system():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
 
-@security_bp.route('/security-headers')
-def security_headers():
-    """Security headers checker tool page"""
-    return render_template('security_headers.html', title="Security Headers Checker")
+@security_bp.route('/url-safety')
+def url_safety():
+    """URL safety checker tool page"""
+    return render_template('url_safety.html', title="URL Safety Checker")
 
-@security_bp.route('/check-security-headers', methods=['POST'])
-def check_security_headers():
-    """Check HTTP security headers"""
+@security_bp.route('/analyze-url-safety', methods=['POST'])
+def analyze_url_safety():
+    """Check URL safety and security"""
     try:
         data = request.json
         target_url = data.get('url', '')
@@ -39,14 +39,44 @@ def check_security_headers():
         if not target_url:
             return jsonify({'success': False, 'error': 'Target URL is required'}), 400
         
-        checker = SecurityHeadersChecker()
-        result = checker.analyze_headers(target_url)
+        checker = URLSafetyChecker()
+        result = checker.analyze_url(target_url)
         
-        # Return the result directly - no nested 'results' key needed for this endpoint
-        return jsonify({
-            'success': True, 
-            'results': result
-        })
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+@security_bp.route('/network-info')
+def network_info():
+    """Network information tool page"""
+    return render_template('network_info.html', title="Network Information Tool")
+
+@security_bp.route('/network-info', methods=['POST'])
+def analyze_network_info():
+    """Perform network information analysis"""
+    try:
+        data = request.json
+        analysis_type = data.get('analysis_type', 'basic_info')
+        
+        analyzer = NetworkInfoTool()
+        
+        if analysis_type == 'basic_info':
+            results = analyzer.get_basic_info()
+        elif analysis_type == 'ping':
+            host = data.get('host', '')
+            count = data.get('count', 4)
+            results = analyzer.ping_host(host, count)
+        elif analysis_type == 'port_check':
+            host = data.get('host', '')
+            port = data.get('port', 80)
+            results = analyzer.check_port(host, port)
+        elif analysis_type == 'speed_test':
+            results = analyzer.speed_test()
+        else:
+            raise ValueError('Invalid analysis type')
+        
+        return jsonify(results)
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
@@ -76,50 +106,6 @@ def check_breach():
             'success': False,
             'error': str(e)
         }), 400
-
-@security_bp.route('/network-analyzer')
-def network_analyzer():
-    """Network analyzer tool page"""
-    return render_template('network_analyzer.html', title="Network Analyzer")
-
-@security_bp.route('/analyze-network', methods=['POST'])
-def analyze_network():
-    """Perform network analysis"""
-    try:
-        data = request.json
-        analysis_type = data.get('type', 'interfaces')
-        
-        analyzer = NetworkAnalyzer()
-        
-        if analysis_type == 'interfaces':
-            results = analyzer.get_network_interfaces()
-        elif analysis_type == 'connections':
-            results = analyzer.get_active_connections()
-        elif analysis_type == 'statistics':
-            results = analyzer.get_network_statistics()
-        elif analysis_type == 'ping':
-            host = data.get('host', '')
-            count = data.get('count', 4)
-            results = analyzer.ping_host(host, count)
-        elif analysis_type == 'traceroute':
-            host = data.get('host', '')
-            results = analyzer.traceroute(host)
-        elif analysis_type == 'dns':
-            domain = data.get('domain', '')
-            record_type = data.get('record_type', 'A')
-            results = analyzer.dns_lookup(domain, record_type)
-        elif analysis_type == 'public_ip':
-            results = analyzer.get_public_ip()
-        elif analysis_type == 'discovery':
-            network = data.get('network', None)
-            results = analyzer.network_discovery(network)
-        else:
-            raise ValueError('Invalid analysis type')
-        
-        return jsonify({'success': True, 'results': results})
-        
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 400
 
 @security_bp.route('/qr-security')
 def qr_security():

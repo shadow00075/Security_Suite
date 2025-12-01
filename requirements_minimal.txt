@@ -1,0 +1,22 @@
+# Capstone Security Suite - Minimal Requirements
+# Essential dependencies only for the current tool set
+
+# Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# HTTP Requests for URL Safety Checker
+requests==2.31.0
+
+# Password Hashing
+bcrypt==4.0.1
+
+# Optional but recommended for system info
+# psutil==5.9.6
+
+# Note: The following were removed as they're not needed for current tools:
+# netifaces - was causing import errors
+# python-nmap - not used in current network info tool
+# scapy - not used in current tools
+# cryptography - not currently needed
+# hashlib2 - Python's built-in hashlib is sufficient

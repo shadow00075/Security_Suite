@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="tool-header bg-primary text-white p-4 rounded mb-4">
+                <h1><i class="fas fa-network-wired"></i> Network Information Tool</h1>
+                <p class="mb-0">Get network information, test connectivity, and perform basic network diagnostics</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network Analysis Tools -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Basic Network Info</h5>
+                </div>
+                <div class="card-body">
+                    <p>Get basic information about your network configuration</p>
+                    <button class="btn btn-primary w-100" onclick="getNetworkInfo()">
+                        <i class="fas fa-search"></i> Get Network Info
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-satellite-dish"></i> Ping Test</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="ping-host" 
+                               placeholder="google.com or 8.8.8.8">
+                    </div>
+                    <button class="btn btn-success w-100" onclick="pingHost()">
+                        <i class="fas fa-wifi"></i> Ping Host
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-door-open"></i> Port Check</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="port-host" 
+                               placeholder="google.com">
+                    </div>
+                    <div class="mb-3">
+                        <input type="number" class="form-control" id="port-number" 
+                               placeholder="80" min="1" max="65535">
+                    </div>
+                    <button class="btn btn-info w-100" onclick="checkPort()">
+                        <i class="fas fa-plug"></i> Check Port
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Examples -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-rocket"></i> Quick Examples</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Ping Tests:</h6>
+                            <div class="btn-group-vertical d-grid gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="quickPing('8.8.8.8')">
+                                    Ping Google DNS (8.8.8.8)
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="quickPing('1.1.1.1')">
+                                    Ping Cloudflare DNS (1.1.1.1)
+                                </button>
+                                <button class="btn btn-outline-primary btn-sm" onclick="quickPing('google.com')">
+                                    Ping Google.com
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Port Checks:</h6>
+                            <div class="btn-group-vertical d-grid gap-2">
+                                <button class="btn btn-outline-success btn-sm" onclick="quickPort('google.com', 80)">
+                                    Check Google HTTP (port 80)
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="quickPort('google.com', 443)">
+                                    Check Google HTTPS (port 443)
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="quickPort('github.com', 22)">
+                                    Check GitHub SSH (port 22)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row mt-4" id="results-section" style="display: none;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-chart-line"></i> Network Analysis Results</h5>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="clearResults()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+                <div class="card-body" id="network-results">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="networkLoadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2" id="loading-text">Analyzing network...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function getNetworkInfo() {
+    $('#loading-text').text('Getting network information...');
+    $('#networkLoadingModal').modal('show');
+    
+    $.ajax({
+        url: '/tools/network-info',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            analysis_type: 'basic_info'
+        }),
+        success: function(response) {
+            $('#networkLoadingModal').modal('hide');
+            if (response.success) {
+                displayNetworkInfo(response.data);
+            } else {
+                showNetworkAlert('Failed to get network info: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            $('#networkLoadingModal').modal('hide');
+            showNetworkAlert('Network error occurred', 'danger');
+        }
+    });
+}
+
+function pingHost() {
+    const host = $('#ping-host').val();
+    if (!host) {
+        showNetworkAlert('Please enter a host to ping', 'warning');
+        return;
+    }
+    
+    $('#loading-text').text('Pinging ' + host + '...');
+    $('#networkLoadingModal').modal('show');
+    
+    $.ajax({
+        url: '/tools/network-info',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            analysis_type: 'ping',
+            host: host,
+            count: 4
+        }),
+        success: function(response) {
+            $('#networkLoadingModal').modal('hide');
+            if (response.success) {
+                displayPingResults(response.data);
+            } else {
+                showNetworkAlert('Ping failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            $('#networkLoadingModal').modal('hide');
+            showNetworkAlert('Network error during ping', 'danger');
+        }
+    });
+}
+
+function checkPort() {
+    const host = $('#port-host').val();
+    const port = parseInt($('#port-number').val());
+    
+    if (!host || !port) {
+        showNetworkAlert('Please enter both host and port number', 'warning');
+        return;
+    }
+    
+    $('#loading-text').text('Checking port ' + port + ' on ' + host + '...');
+    $('#networkLoadingModal').modal('show');
+    
+    $.ajax({
+        url: '/tools/network-info',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            analysis_type: 'port_check',
+            host: host,
+            port: port
+        }),
+        success: function(response) {
+            $('#networkLoadingModal').modal('hide');
+            if (response.success) {
+                displayPortResults(response.data);
+            } else {
+                showNetworkAlert('Port check failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            $('#networkLoadingModal').modal('hide');
+            showNetworkAlert('Network error during port check', 'danger');
+        }
+    });
+}
+
+function quickPing(host) {
+    $('#ping-host').val(host);
+    pingHost();
+}
+
+function quickPort(host, port) {
+    $('#port-host').val(host);
+    $('#port-number').val(port);
+    checkPort();
+}
+
+function displayNetworkInfo(data) {
+    $('#results-section').show();
+    
+    let html = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="fas fa-desktop"></i> System Information</h6>
+                <table class="table table-striped">
+                    <tr><td><strong>Hostname:</strong></td><td>${data.hostname}</td></tr>
+                    <tr><td><strong>Operating System:</strong></td><td>${data.system}</td></tr>
+                    <tr><td><strong>Network Status:</strong></td><td>
+                        <span class="badge ${data.network_status === 'Connected' ? 'bg-success' : 'bg-danger'}">
+                            ${data.network_status}
+                        </span>
+                    </td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-network-wired"></i> Network Configuration</h6>
+                <table class="table table-striped">
+                    <tr><td><strong>Local IP:</strong></td><td><code>${data.local_ip}</code></td></tr>
+                    <tr><td><strong>Public IP:</strong></td><td><code>${data.public_ip}</code></td></tr>
+                    <tr><td><strong>DNS Servers:</strong></td><td><code>${data.dns_servers.join(', ')}</code></td></tr>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    $('#network-results').html(html);
+}
+
+function displayPingResults(data) {
+    $('#results-section').show();
+    
+    const status = data.status === 'Success' ? 'success' : 'danger';
+    const lossColor = data.packet_loss_percent === 0 ? 'success' : 
+                     data.packet_loss_percent < 50 ? 'warning' : 'danger';
+    
+    let html = `
+        <div class="row">
+            <div class="col-md-8">
+                <h6><i class="fas fa-satellite-dish"></i> Ping Results for ${data.host}</h6>
+                <table class="table table-bordered">
+                    <tr><td><strong>Host:</strong></td><td><code>${data.host}</code></td></tr>
+                    <tr><td><strong>Status:</strong></td><td><span class="badge bg-${status}">${data.status}</span></td></tr>
+                    <tr><td><strong>Packets Sent:</strong></td><td>${data.packets_sent}</td></tr>
+                    <tr><td><strong>Packets Received:</strong></td><td>${data.packets_received}</td></tr>
+                    <tr><td><strong>Packet Loss:</strong></td><td><span class="badge bg-${lossColor}">${data.packet_loss_percent}%</span></td></tr>
+                    <tr><td><strong>Average Response Time:</strong></td><td>${data.avg_response_time.toFixed(2)} ms</td></tr>
+                </table>
+                
+                ${data.response_times.length > 0 ? `
+                <h6><i class="fas fa-clock"></i> Response Times</h6>
+                <div class="alert alert-info">
+                    ${data.response_times.map((time, index) => 
+                        `<span class="badge bg-secondary me-1">Packet ${index + 1}: ${time}ms</span>`
+                    ).join('')}
+                </div>
+                ` : ''}
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Connection Quality</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-2">
+                            <span class="badge bg-${status} fs-6">${data.status}</span>
+                        </div>
+                        ${data.avg_response_time < 50 ? '<p class="text-success">Excellent connection</p>' :
+                          data.avg_response_time < 100 ? '<p class="text-info">Good connection</p>' :
+                          data.avg_response_time < 200 ? '<p class="text-warning">Fair connection</p>' :
+                          '<p class="text-danger">Poor connection</p>'}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#network-results').html(html);
+}
+
+function displayPortResults(data) {
+    $('#results-section').show();
+    
+    const status = data.status === 'Open' ? 'success' : 'danger';
+    const statusIcon = data.status === 'Open' ? 'fa-door-open' : 'fa-door-closed';
+    
+    let html = `
+        <div class="row">
+            <div class="col-md-8">
+                <h6><i class="fas fa-plug"></i> Port Check Results</h6>
+                <table class="table table-bordered">
+                    <tr><td><strong>Host:</strong></td><td><code>${data.host}</code></td></tr>
+                    <tr><td><strong>Port:</strong></td><td><code>${data.port}</code></td></tr>
+                    <tr><td><strong>Service:</strong></td><td>${data.service}</td></tr>
+                    <tr><td><strong>Status:</strong></td><td>
+                        <span class="badge bg-${status}">
+                            <i class="fas ${statusIcon}"></i> ${data.status}
+                        </span>
+                    </td></tr>
+                    <tr><td><strong>Response Time:</strong></td><td>${data.response_time_ms} ms</td></tr>
+                </table>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Port Status</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <i class="fas ${statusIcon} fa-3x text-${status} mb-2"></i>
+                        <h5 class="text-${status}">${data.status}</h5>
+                        <p class="text-muted">${data.service}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#network-results').html(html);
+}
+
+function showNetworkAlert(message, type) {
+    $('#results-section').show();
+    $('#network-results').html(`
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+}
+
+function clearResults() {
+    $('#results-section').hide();
+    $('#ping-host').val('');
+    $('#port-host').val('');
+    $('#port-number').val('');
+}
+</script>
+{% endblock %}

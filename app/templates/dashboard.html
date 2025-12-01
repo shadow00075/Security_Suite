@@ -1,5 +1,41 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    /* Force blue dashboard theme */
+    .dashboard-header {
+        background: #f8f9fa !important;
+        color: #212529 !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    .card {
+        background-color: white !important;
+        border: 1px solid rgba(0,0,0,.125) !important;
+    }
+    .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+    .bg-primary {
+        background-color: #007bff !important;
+    }
+    .bg-info {
+        background-color: #17a2b8 !important;
+    }
+    .bg-success {
+        background-color: #28a745 !important;
+    }
+    .text-primary {
+        color: #007bff !important;
+    }
+    .alert-info {
+        background-color: #d1ecf1 !important;
+        border-color: #bee5eb !important;
+        color: #0c5460 !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-header">
     <div class="row align-items-center mb-4">
@@ -18,57 +54,6 @@
                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal">
                     <i class="fas fa-cog"></i> Settings
                 </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Stats -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Active Scans</h6>
-                        <h3 class="mb-0" id="active-scans">0</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-search fa-2x opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Recent Scans</h6>
-                        <h3 class="mb-0" id="recent-scans">3</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-history fa-2x opacity-75"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Tools Available</h6>
-                        <h3 class="mb-0">6</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-tools fa-2x opacity-75"></i>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -185,7 +170,7 @@
                             </div>
                             <div class="flex-grow-1">
                                 <strong>6 Security Tools Available</strong>
-                                <br><small class="text-muted">Password checker, network analyzer, QR security scanner and more</small>
+                                <br><small class="text-muted">Password checker, URL safety checker, network tools, QR security scanner and more</small>
                             </div>
                             <small class="text-muted">Ready</small>
                         </div>
@@ -300,99 +285,6 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-.dashboard-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 2rem;
-    border-radius: 0.5rem;
-    margin-bottom: 2rem;
-    margin-top: 70px;
-}
-
-.tool-card {
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-
-.tool-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.tool-icon {
-    font-size: 2.5rem;
-    background: rgba(0,123,255,0.1);
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-}
-
-.card.bg-primary .opacity-75 { opacity: 0.75 !important; }
-.card.bg-success .opacity-75 { opacity: 0.75 !important; }
-.card.bg-warning .opacity-75 { opacity: 0.75 !important; }
-.card.bg-info .opacity-75 { opacity: 0.75 !important; }
-
-.activity-item {
-    padding: 1rem;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.activity-item:last-child {
-    border-bottom: none;
-}
-
-.activity-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.tip-item {
-    padding: 0.75rem;
-    background: rgba(0, 123, 255, 0.05);
-    border-radius: 0.375rem;
-    border-left: 3px solid #007bff;
-}
-
-.tip-icon {
-    width: 30px;
-    text-align: center;
-}
-
-.alert-item {
-    background: rgba(255, 193, 7, 0.1);
-    border-left: 4px solid #ffc107;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.alert-item.high {
-    background: rgba(220, 53, 69, 0.1);
-    border-left-color: #dc3545;
-}
-
-.alert-item.medium {
-    background: rgba(255, 193, 7, 0.1);
-    border-left-color: #ffc107;
-}
-
-.alert-item.low {
-    background: rgba(0, 123, 255, 0.1);
-    border-left-color: #007bff;
-}
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
 let refreshInterval = null;
@@ -442,7 +334,7 @@ function loadRecentActivity() {
             icon: 'fas fa-tools',
             iconClass: 'bg-info', 
             title: '6 Security Tools Available',
-            description: 'Password checker, network analyzer, QR security scanner and more',
+            description: 'Password checker, URL safety checker, network tools, QR security scanner and more',
             time: 'Ready'
         },
         {

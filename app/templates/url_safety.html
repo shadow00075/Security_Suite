@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="tool-header bg-primary text-white p-4 rounded mb-4">
+                <h1><i class="fas fa-shield-check"></i> URL Safety Checker</h1>
+                <p class="mb-0">Analyze URLs for potential security threats and safety issues</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Input Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-link"></i> URL Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <form id="url-analysis-form">
+                        <div class="mb-3">
+                            <label for="target-url" class="form-label">Target URL</label>
+                            <input type="url" class="form-control" id="target-url" 
+                                   placeholder="https://example.com" required>
+                            <div class="form-text">Enter the complete URL starting with https:// or http://</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Analyze URL
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearResults()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </form>
+
+                    <div class="mt-4">
+                        <h6>Quick Examples:</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-success btn-sm" onclick="loadExample('https://www.google.com')">
+                                Safe HTTPS Site
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="loadExample('http://example.com')">
+                                HTTP Site (Less Secure)
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="loadExample('https://github.com/shadow00075/Security_Suite')">
+                                Your GitHub Repository
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> How It Works</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>URL Safety Checker</strong> analyzes websites for potential security threats including:</p>
+                    
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i><strong>HTTPS Security:</strong> Checks for encrypted connections</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>Malicious Domains:</strong> Identifies known bad sites</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>URL Shorteners:</strong> Detects potentially risky shortened URLs</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>Suspicious Patterns:</strong> Analyzes URL structure</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>Security Headers:</strong> Checks for protective HTTP headers</li>
+                    </ul>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb"></i> Safety Tips:</h6>
+                        <ul class="mb-0">
+                            <li>Always look for HTTPS (🔒) in your browser</li>
+                            <li>Be cautious with shortened URLs from unknown sources</li>
+                            <li>Verify website URLs before entering sensitive information</li>
+                            <li>Keep your browser updated for the latest security features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row mt-4" id="results-section" style="display: none;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-chart-line"></i> Analysis Results</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="exportResults()">
+                        <i class="fas fa-download"></i> Export Results
+                    </button>
+                </div>
+                <div class="card-body" id="analysis-results">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Analyzing URL...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#url-analysis-form').on('submit', function(e) {
+        e.preventDefault();
+        analyzeURL();
+    });
+});
+
+function analyzeURL() {
+    const url = $('#target-url').val();
+    
+    if (!url) {
+        showAlert('Please enter a URL to analyze', 'warning');
+        return;
+    }
+
+    $('#loadingModal').modal('show');
+    
+    $.ajax({
+        url: '/tools/analyze-url-safety',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            url: url
+        }),
+        success: function(response) {
+            $('#loadingModal').modal('hide');
+            if (response.success) {
+                displayResults(response.analysis);
+            } else {
+                showAlert('Analysis failed: ' + response.error, 'danger');
+            }
+        },
+        error: function() {
+            $('#loadingModal').modal('hide');
+            showAlert('Network error occurred during analysis', 'danger');
+        }
+    });
+}
+
+function displayResults(analysis) {
+    $('#results-section').show();
+    
+    const riskBadge = getRiskBadge(analysis.risk_level, analysis.risk_color);
+    const scoreColor = analysis.safety_score >= 80 ? 'success' : 
+                      analysis.safety_score >= 60 ? 'warning' : 'danger';
+    
+    let resultsHTML = `
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-4">
+                    <h6>URL Analysis Summary</h6>
+                    <table class="table table-bordered">
+                        <tr>
+                            <td><strong>URL:</strong></td>
+                            <td><code>${analysis.url}</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Domain:</strong></td>
+                            <td>${analysis.domain}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Safety Score:</strong></td>
+                            <td>
+                                <span class="badge bg-${scoreColor}">${analysis.safety_score}/100</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Risk Level:</strong></td>
+                            <td>${riskBadge}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Protocol:</strong></td>
+                            <td>${analysis.technical_details.scheme.toUpperCase()}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                ${analysis.warnings.length > 0 ? `
+                <div class="mb-4">
+                    <h6><i class="fas fa-exclamation-triangle text-warning"></i> Security Warnings</h6>
+                    <div class="alert alert-warning">
+                        <ul class="mb-0">
+                            ${analysis.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div class="mb-4">
+                    <h6><i class="fas fa-lightbulb text-info"></i> Recommendations</h6>
+                    <div class="alert alert-info">
+                        <ul class="mb-0">
+                            ${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Safety Score</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar bg-${scoreColor}" role="progressbar" 
+                                 style="width: ${analysis.safety_score}%" 
+                                 aria-valuenow="${analysis.safety_score}" aria-valuemin="0" aria-valuemax="100">
+                                ${analysis.safety_score}%
+                            </div>
+                        </div>
+                        <p class="mb-0">${riskBadge}</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Technical Details</h6>
+                    </div>
+                    <div class="card-body">
+                        <small>
+                            <strong>Scheme:</strong> ${analysis.technical_details.scheme}<br>
+                            <strong>Path:</strong> ${analysis.technical_details.path || '/'}<br>
+                            ${analysis.technical_details.status_code ? `<strong>Status Code:</strong> ${analysis.technical_details.status_code}<br>` : ''}
+                            ${analysis.technical_details.final_url !== analysis.url ? `<strong>Redirected:</strong> Yes<br>` : ''}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#analysis-results').html(resultsHTML);
+}
+
+function getRiskBadge(riskLevel, riskColor) {
+    return `<span class="badge bg-${riskColor}">${riskLevel}</span>`;
+}
+
+function loadExample(url) {
+    $('#target-url').val(url);
+}
+
+function clearResults() {
+    $('#target-url').val('');
+    $('#results-section').hide();
+}
+
+function exportResults() {
+    const results = $('#analysis-results').html();
+    if (!results) {
+        showAlert('No results to export', 'warning');
+        return;
+    }
+    
+    const blob = new Blob([results], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'url_safety_analysis.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function showAlert(message, type) {
+    const alertHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    $('#analysis-results').html(alertHTML);
+    $('#results-section').show();
+}
+</script>
+{% endblock %}

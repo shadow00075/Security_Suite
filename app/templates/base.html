@@ -10,7 +10,85 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}?v={{ range(1, 10000) | random }}" rel="stylesheet">
+    
+    <!-- Force Blue Theme Override -->
+    <style>
+        /* AGGRESSIVE BLUE THEME OVERRIDE - Remove ALL orange styling */
+        body {
+            background-color: #f8f9fa !important;
+        }
+        .navbar {
+            background-color: #343a40 !important;
+        }
+        .btn-primary, .btn-warning, .btn-info {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            color: white !important;
+        }
+        .btn-primary:hover, .btn-warning:hover, .btn-info:hover {
+            background-color: #0056b3 !important;
+            border-color: #0056b3 !important;
+            color: white !important;
+        }
+        .btn-success {
+            background-color: #28a745 !important;
+            border-color: #28a745 !important;
+        }
+        .text-primary {
+            color: #007bff !important;
+        }
+        .bg-primary, .bg-warning, .tool-header {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        .bg-info {
+            background-color: #17a2b8 !important;
+        }
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .card {
+            background-color: white !important;
+            border: 1px solid rgba(0,0,0,.125) !important;
+        }
+        .card-header {
+            background-color: #f8f9fa !important;
+            color: #212529 !important;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        .dashboard-header {
+            background: #f8f9fa !important;
+            color: #212529 !important;
+            border: 1px solid #dee2e6 !important;
+        }
+        .alert-info {
+            background-color: #d1ecf1 !important;
+            border-color: #bee5eb !important;
+            color: #0c5460 !important;
+        }
+        /* Remove ALL orange/warm colors */
+        * {
+            --bs-primary: #007bff !important;
+            --bs-primary-rgb: 0, 123, 255 !important;
+            --bs-warning: #ffc107 !important;
+            --bs-info: #17a2b8 !important;
+        }
+        /* Override any potential orange classes */
+        .bg-orange, .text-orange, [class*="orange"] {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        /* Force navbar links to be white */
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.75) !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #007bff !important;
+        }
+    </style>
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -45,14 +123,14 @@
                             <li><a class="dropdown-item" href="{{ url_for('security.system_info') }}">
                                 <i class="fas fa-desktop"></i> System Information Analyzer
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('security.security_headers') }}">
-                                <i class="fas fa-shield-check"></i> Security Headers Checker
+                            <li><a class="dropdown-item" href="{{ url_for('security.url_safety') }}">
+                                <i class="fas fa-shield-check"></i> URL Safety Checker
                             </a></li>
                             <li><a class="dropdown-item" href="{{ url_for('security.breach_checker') }}">
                                 <i class="fas fa-shield-halved"></i> Password Breach Checker
                             </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('security.network_analyzer') }}">
-                                <i class="fas fa-network-wired"></i> Network Analyzer
+                            <li><a class="dropdown-item" href="{{ url_for('security.network_info') }}">
+                                <i class="fas fa-network-wired"></i> Network Information Tool
                             </a></li>
                             <li><a class="dropdown-item" href="{{ url_for('security.qr_security') }}">
                                 <i class="fas fa-qrcode"></i> QR Code Security Scanner

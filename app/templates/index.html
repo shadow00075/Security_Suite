@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    /* Force blue theme for index page */
+    .hero-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    }
+    .text-primary {
+        color: #007bff !important;
+    }
+    .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+    .card {
+        background-color: white !important;
+        border: 1px solid rgba(0,0,0,.125) !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="hero-section">
     <div class="container text-center">
@@ -10,8 +30,8 @@
                     Capstone Security Suite
                 </h1>
                 <p class="lead mb-4">
-                    A comprehensive cybersecurity toolkit featuring intelligent password generation, 
-                    network analysis, QR code security scanning, and anomaly-based intrusion detection.
+                    A comprehensive cybersecurity toolkit featuring intelligent URL safety analysis, 
+                    network diagnostics, password security assessment, and professional security tools.
                 </p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                     <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg me-md-2">
@@ -78,13 +98,13 @@
                         <div class="feature-icon mb-3">
                             <i class="fas fa-network-wired fa-3x text-info"></i>
                         </div>
-                        <h5 class="card-title">Network Analyzer</h5>
+                        <h5 class="card-title">Network Information Tool</h5>
                         <p class="card-text">
-                            Comprehensive network analysis including interface monitoring, 
-                            connection tracking, and network discovery tools.
+                            Get essential network diagnostics with ping testing and port connectivity checks.
+                            Lightweight tool perfect for network troubleshooting and analysis.
                         </p>
-                        <a href="{{ url_for('security.network_analyzer') }}" class="btn btn-outline-info">
-                            Analyze Network <i class="fas fa-arrow-right"></i>
+                        <a href="{{ url_for('security.network_info') }}" class="btn btn-outline-info">
+                            Network Analysis <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -112,15 +132,15 @@
                 <div class="card h-100 feature-card">
                     <div class="card-body text-center">
                         <div class="feature-icon mb-3">
-                            <i class="fas fa-qrcode fa-3x text-danger"></i>
+                            <i class="fas fa-shield-check fa-3x text-success"></i>
                         </div>
-                        <h5 class="card-title">QR Code Security Scanner</h5>
+                        <h5 class="card-title">URL Safety Checker</h5>
                         <p class="card-text">
-                            Analyze QR codes for security threats including malicious URLs, phishing attempts,
-                            and suspicious content. Get detailed risk assessments and safety recommendations.
+                            Analyze URLs for security threats, malicious domains, and safety issues.
+                            Get comprehensive risk assessments and safety recommendations for any website.
                         </p>
-                        <a href="{{ url_for('security.qr_security') }}" class="btn btn-outline-danger">
-                            Scan QR Code <i class="fas fa-arrow-right"></i>
+                        <a href="{{ url_for('security.url_safety') }}" class="btn btn-outline-success">
+                            Check URL Safety <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -130,15 +150,15 @@
                 <div class="card h-100 feature-card">
                     <div class="card-body text-center">
                         <div class="feature-icon mb-3">
-                            <i class="fas fa-shield-check fa-3x text-dark"></i>
+                            <i class="fas fa-network-wired fa-3x text-info"></i>
                         </div>
-                        <h5 class="card-title">Security Headers Checker</h5>
+                        <h5 class="card-title">Network Information Tool</h5>
                         <p class="card-text">
-                            Analyze HTTP security headers and web application security posture. 
-                            Get detailed recommendations for improving security configuration.
+                            Get essential network diagnostics with ping testing and port connectivity checks.
+                            Lightweight tool perfect for network troubleshooting and analysis.
                         </p>
-                        <a href="{{ url_for('security.security_headers') }}" class="btn btn-outline-dark">
-                            Check Headers <i class="fas fa-arrow-right"></i>
+                        <a href="{{ url_for('security.network_info') }}" class="btn btn-outline-info">
+                            Network Analysis <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>

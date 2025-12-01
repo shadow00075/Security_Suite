@@ -32,22 +32,22 @@ def dashboard():
             'icon': '💻'
         },
         {
+            'name': 'URL Safety Checker',
+            'description': 'Analyze URLs for potential security threats and safety issues',
+            'url': '/tools/url-safety',
+            'icon': '🛡️'
+        },
+        {
             'name': 'Password Breach Checker',
             'description': 'Check if passwords have been compromised in data breaches',
             'url': '/tools/breach-checker',
             'icon': '🔐'
         },
         {
-            'name': 'Network Analyzer',
-            'description': 'Analyze network traffic and connections',
-            'url': '/tools/network-analyzer',
+            'name': 'Network Information Tool',
+            'description': 'Get network information and test connectivity',
+            'url': '/tools/network-info',
             'icon': '🌐'
-        },
-        {
-            'name': 'Security Headers Checker',
-            'description': 'Analyze HTTP security headers for web applications',
-            'url': '/tools/security-headers',
-            'icon': '🛡️'
         },
         {
             'name': 'QR Code Security Scanner',
